@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 const axios = require('axios').default;
 
-/* this is the way to access the public api */
+/* this is the way to access the vulnerabilities public api */
 const redHatBaseURL = "https://access.redhat.com/hydra/rest/securitydata";
 
 /* parameters that the user can adjust and then used to query the API */
