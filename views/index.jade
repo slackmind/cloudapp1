@@ -1,27 +1,28 @@
 extends layout
 
 
-
 block content
   h1= title
   p Find information about recent vulnerabilities
   h2= "Select a timeframe"
-  p #{body}
-  p Days
-    input(type="number", name="days")
+  p Select how many days to search for
   
-  ul.nav
-  each name in ["Dashboard", "About", "Contact"]
-    if (menu=="Home")
-      li.active
-        a(href="#")= name
-    else
-      li
-        a(href="#")= name
-  
+  select(name="days")
+    option(value='1') 1 Day
+    option(value='3') 3 Days
+    option(value='7') 7 Days
+    option(value='14') 14 Days
+    option(value='30') 30 Days
+  |  
   button Check Dates
   h1= title2
   p Find information about a file #{title2}
   h2= "Here you can check a file's fingerprint and find out information"
+  form(name="add-estimation", method="post")
+        div.input
+            span.label Title
+            input(type="text", name="file hash")
+        div.actions
+            input(type="submit", value="search")
   p Input the hash #{body2}
   button Check hash
