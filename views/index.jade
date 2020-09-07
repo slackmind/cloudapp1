@@ -7,7 +7,7 @@ block content
   h2= "Select a timeframe"
   p Select how many days to search for
   
-  form(method='GET', actions="/users/test")
+  form(name="input days", method="post")
     select#daysAgo(name='days')
       option(value='1') 1 Day
       option(value='2') 2 Days

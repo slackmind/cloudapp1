@@ -12,4 +12,10 @@ router.get('/', function(req, res, next) {
    });
 });
 
+router.post('/', function (req, res) {
+  console.log(req.body.selectDays);
+  console.log(req.body.description);
+  res.send('Post page');
+});
+
 module.exports = router;
