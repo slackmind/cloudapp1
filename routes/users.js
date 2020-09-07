@@ -5,6 +5,10 @@ const axios = require('axios').default;
 /* this is the way to access the vulnerabilities public api */
 const redHatBaseURL = "https://access.redhat.com/hydra/rest/securitydata";
 
+
+/* IBM API KEY */
+const keyIBM = fEOOxGITeluTqwW6iiP6_JYlJIw-ncV-k_wsgru_rfRr;
+
 /* parameters that the user can adjust and then used to query the API */
 let daysAgo = 5;
 let vulnerability;
@@ -19,6 +23,7 @@ router.get('/', function(req, res, next) {
 });
 
 
+/* for the test web page */
 router.get("/test", (req, res, next) => {
   axios.get(redHatBaseURL + `/cvrf.json?created_days_ago=${daysAgo}`)
         .then((response) => {
