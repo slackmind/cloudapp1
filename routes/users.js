@@ -25,6 +25,7 @@ router.get('/', function(req, res, next) {
 
 /* for the test web page */
 router.get("/test", (req, res, next) => {
+  console.log(req.body)
   axios.get(redHatBaseURL + `/cvrf.json?created_days_ago=${daysAgo}`)
         .then((response) => {
           if(response.status === 400){

@@ -7,22 +7,21 @@ block content
   h2= "Select a timeframe"
   p Select how many days to search for
   
-  select(name="days")
-    option(value='1') 1 Day
-    option(value='3') 3 Days
-    option(value='7') 7 Days
-    option(value='14') 14 Days
-    option(value='30') 30 Days
-  |  
-  button Check Dates
+  form(method='GET', actions="/users/test")
+    select#daysAgo(name='days')
+      option(value='1') 1 Day
+      option(value='2') 2 Days
+      option(value='7') 7 Days
+    input(type='submit', name='daysAgo')
+
   h1= title2
   p Find information about a file #{title2}
   h2= "Here you can check a file's fingerprint and find out information"
   form(name="add-estimation", method="post")
         div.input
-            span.label Title
+            span.label Hash
             input(type="text", name="file hash")
+          |  
         div.actions
             input(type="submit", value="search")
-  p Input the hash #{body2}
-  button Check hash
+
