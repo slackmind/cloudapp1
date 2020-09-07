@@ -10,7 +10,7 @@ const redHatBaseURL = "https://access.redhat.com/hydra/rest/securitydata";
 //const keyIBM = "fEOOxGITeluTqwW6iiP6_JYlJIw-ncV-k_wsgru_rfRr";
 
 /* parameters that the user can adjust and then used to query the API */
-let daysAgo = 5;
+let daysAgo;
 let vulnerability;
 let notes;
 
@@ -25,6 +25,7 @@ router.get('/', function(req, res, next) {
 
 /* for the test web page */
 router.get("/test", (req, res, next) => {
+  
   console.log(req.body)
   axios.get(redHatBaseURL + `/cvrf.json?created_days_ago=${daysAgo}`)
         .then((response) => {

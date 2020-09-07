@@ -8,3 +8,16 @@ a {
   color: #00B7FF;
 }
 
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: red;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+button:hover {
+  text-decoration: underline;
+}
+
