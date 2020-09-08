@@ -9,10 +9,55 @@ block content
 
     form(name="input days", method="get")
       select#daysAgo(name='days')
-        option(value='1') 1 Day
-        option(value='2') 2 Days
-        option(value='7') 7 Days
+        option(value='01') 1 Day
+        option(value='02') 2 Days
+        option(value='07') 7 Days
       button(type='submit') Submit
+
+  p Or select a timeframe to find vulnerabilities between
+    form(name="timeframe", method="get")
+      select#startMonth(name='startMonth')
+        option(value='01') January
+        option(value='02') February
+        option(value='03') March
+        option(value='04') April
+        option(value='05') May
+        option(value='06') June
+        option(value='07') July
+        option(value='08') August        
+        option(value='09') September
+        option(value='10') October
+        option(value='11') November
+        option(value='12') December 
+      select#startYear(name='startYear')
+        option(value='2015') 2015
+        option(value='2016') 2016
+        option(value='2017') 2017 
+        option(value='2018') 2018
+        option(value='2019') 2019
+        option(value='2020') 2020
+      select#endMonth(name='endMonth')
+        option(value='01') January
+        option(value='02') February
+        option(value='03') March
+        option(value='04') April
+        option(value='05') May
+        option(value='06') June
+        option(value='07') July
+        option(value='08') August        
+        option(value='09') September
+        option(value='10') October
+        option(value='11') November
+        option(value='12') December 
+      select#endYear(name='endYear')
+        option(value='2015') 2015
+        option(value='2016') 2016
+        option(value='2017') 2017 
+        option(value='2018') 2018
+        option(value='2019') 2019
+        option(value='2020') 2020       
+      button(type='submit') Submit
+    
 
   h1= title2
   p Find information about a file
