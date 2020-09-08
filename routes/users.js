@@ -28,6 +28,12 @@ const redHatBaseURL = "https://access.redhat.com/hydra/rest/securitydata";
 /* nist CVE database */
 const nistBaseURL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
 
+/* start date with NIST */
+const nistStart = "https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate=2019-01-01T00:00:00:000%20UTC-05:00";
+
+/* keyword with NIST */
+const nistKeyword = "https://services.nvd.nist.gov/rest/json/cves/1.0?keyword=vpn";
+
   console.log(req.body)
   axios
   .get(redHatBaseURL + `/cvrf.json?created_days_ago=${daysAgo}`)
