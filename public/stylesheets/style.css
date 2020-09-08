@@ -9,15 +9,25 @@ a {
 }
 
 button {
-  background: none;
-  border: none;
+  background: rgb(212, 230, 233);
+  border: 0.5rem solid black;
   padding: 0;
-  color: red;
+  color: rgb(55, 0, 255);
   cursor: pointer;
   font-size: 20px;
+  margin-left: 20px;
 }
 
 button:hover {
   text-decoration: underline;
 }
 
+button2 {
+  background: rgb(212, 230, 233);
+  border: 0.5rem solid black;
+  padding: 0;
+  color: rgb(55, 0, 255);
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 20px;
+}

@@ -3,8 +3,37 @@ const router = express.Router();
 const axios = require('axios').default;
 const request = require('request');
 
-/* IBM API KEY */
-//const keyIBM = "fEOOxGITeluTqwW6iiP6_JYlJIw-ncV-k_wsgru_rfRr";
+/* for the IBM NLP *
+const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
+const { IamAuthenticator } = require('ibm-watson/auth');
+
+
+const naturalLanguageUnderstanding = new NaturalLanguageUnderstandingV1({
+  version: '2020-08-01',
+  authenticator: new IamAuthenticator({
+    apikey: 'fEOOxGITeluTqwW6iiP6_JYlJIw-ncV-k_wsgru_rfRr',
+  }),
+  serviceUrl: '{url}',
+});
+
+const analyzeParams = {
+  'url': 'www.ibm.com',
+  'features': {
+    'keywords': {
+      'sentiment': true,
+      'emotion': true,
+      'limit': 3
+    }
+  }
+};
+
+naturalLanguageUnderstanding.analyze(analyzeParams)
+  .then(analysisResults => {
+    console.log(JSON.stringify(analysisResults, null, 2));
+  })
+  .catch(err => {
+    console.log('error:', err);
+  });*/
 
 /* keyword with NIST */
 const nistKeyword = "https://services.nvd.nist.gov/rest/json/cves/1.0?keyword=vpn";

@@ -2,17 +2,17 @@ extends layout
 
 
 block content
-  h1= title
+  h1=title
   p Find information about recent vulnerabilities
   h2= "Select a timeframe"
-  p Select how many days to search for
-  
-  form(name="input days", method="post")
-    select#daysAgo(name='days')
-      option(value='1') 1 Day
-      option(value='2') 2 Days
-      option(value='7') 7 Days
-    input(type='submit', name='daysAgo')
+  p Find vulnerabilities for the previous _ days
+
+    form(name="input days", method="get")
+      select#daysAgo(name='days')
+        option(value='1') 1 Day
+        option(value='2') 2 Days
+        option(value='7') 7 Days
+      button(type='submit') Submit
 
   h1= title2
   p Find information about a file
@@ -23,5 +23,5 @@ block content
             input(type="text", name="file hash")
           |  
         div.actions
-            input(type="submit", value="search")
+            button2(type='search') Search
 
