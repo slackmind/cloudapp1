@@ -7,15 +7,14 @@ block content
   h2= "Select a timeframe"
   p Find related vulnerabilities to a keyword
 
-  form(name="keyword", method="post")
+  form(action='/searchterm', name="keyword", method="get")
     div.input
       span.label Keyword
       input(type="text", name="keyword") 
-    div.actions
-      button2(type='search') Search
+      button(type='submit') Search
 
   p Or select a timeframe to find vulnerabilities between
-    form(action='/search',name="timeframe", method="get")
+    form(action='/timeframe',name="timeframe", method="get")
       select#startMonth(name='startMonth')
         option() Month
         option(value='01') January

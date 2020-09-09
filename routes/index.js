@@ -2,14 +2,40 @@ var express = require('express');
 var router = express.Router();
 const axios = require('axios').default;
 
-router.get('/search', function(req, res) {
+router.get('/searchterm', function(req, res) {
+
+  console.log("aiya");
+  console.log(req.query);
+  let keyword = req.query.keyword;
+  console.log(keyword);
+
+  /* NIST CVE API URL  */
+  const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
+  let keywordSearch = `?keyword=${keyword}`;
+  let numResults = '&resultsPerPage=5';
+
+  axios
+  .get(NIST_URL + keywordSearch + numResults)
+    .then((response) => {
+          
+    const { data } = response;
+    })
+  
+  res.render('searchterm', {
+    term: keyword,
+    }
+  )
+});
+
+router.get('/timeframe', function(req, res) {
 
   console.log(req.query);
   let days = req.query.days;
   let startMonth = req.query.startMonth;
-  let endMonth = req.query.endMonth;
   let startYear = req.query.startYear;
+  let endMonth = req.query.endMonth;
   let endYear = req.query.endYear;
+  
 
   /* NIST CVE API URL  */
   const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
@@ -27,6 +53,13 @@ router.get('/search', function(req, res) {
 
           console.log(allDescriptions);
 
+          /*
+          description1 = allDescriptions[0]
+
+          let secondapicall = descrption1;
+          */
+          
+
 
 })
 });
@@ -38,6 +71,7 @@ router.get('/', function(req, res) {
     title: 'Recent Vulnerabilities', 
     title2: 'Check a file',
     //info: allDescriptions
+
    });
 });
 
