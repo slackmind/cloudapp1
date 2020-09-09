@@ -5,18 +5,19 @@ block content
   h1=title
   p Find information about recent vulnerabilities
   h2= "Select a timeframe"
-  p Find vulnerabilities for the previous _ days
+  p Find related vulnerabilities to a keyword
 
-    form(name="input days", method="get")
-      select#daysAgo(name='days')
-        option(value='01') 1 Day
-        option(value='02') 2 Days
-        option(value='07') 7 Days
-      button(type='submit') Submit
+  form(name="keyword", method="post")
+    div.input
+      span.label Keyword
+      input(type="text", name="keyword") 
+    div.actions
+      button2(type='search') Search
 
   p Or select a timeframe to find vulnerabilities between
-    form(name="timeframe", method="get")
+    form(action='/search',name="timeframe", method="get")
       select#startMonth(name='startMonth')
+        option() Month
         option(value='01') January
         option(value='02') February
         option(value='03') March
@@ -30,6 +31,7 @@ block content
         option(value='11') November
         option(value='12') December 
       select#startYear(name='startYear')
+        option() Year
         option(value='2015') 2015
         option(value='2016') 2016
         option(value='2017') 2017 
@@ -37,6 +39,7 @@ block content
         option(value='2019') 2019
         option(value='2020') 2020
       select#endMonth(name='endMonth')
+        option() Month
         option(value='01') January
         option(value='02') February
         option(value='03') March
@@ -50,6 +53,7 @@ block content
         option(value='11') November
         option(value='12') December 
       select#endYear(name='endYear')
+        option() Year
         option(value='2015') 2015
         option(value='2016') 2016
         option(value='2017') 2017 
