@@ -4,7 +4,7 @@ const axios = require('axios').default;
 
 router.get('/searchterm', function(req, res) {
 
-  console.log("aiya");
+  console.log("hello kiki");
   console.log(req.query);
   let keyword = req.query.keyword;
   console.log(keyword);
