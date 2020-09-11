@@ -47,21 +47,32 @@ router.get('/timeframe', function(req, res) {
         
         .then((response) => {
           console.log('got here')
+
+          // save the response to an object
           let { data } = response;
-          //console.log(data[0])
-          let allDescriptions = data.result.CVE_Items[0].cve.description.description_data.value;
+          console.log('attempt to display data');
 
-          console.log(allDescriptions);
-
-          /*
-          description1 = allDescriptions[0]
-
-          let secondapicall = descrption1;
-          */
+          // we are just interested in the CVE_Items array
+          console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
+          console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
           
+          // calculate how big the array is
+          console.log('how many things? ' + data.result.CVE_Items.length);
+          
+  })
 
-
-})
+  // error handling
+  .catch(err => {
+    if (err.response) {
+      console.log("5xx/4xx error");
+      console.log(err);
+    } else if (err.request) {
+      console.log("something went wrong with response or request");
+      console.log(err);
+    }
+    console.log(err);
+    console.log("something went wrong, axios error");
+  })
 });
 
 /* GET home page. */
@@ -71,7 +82,6 @@ router.get('/', function(req, res) {
     title: 'Recent Vulnerabilities', 
     title2: 'Check a file',
     //info: allDescriptions
-
    });
 });
 
