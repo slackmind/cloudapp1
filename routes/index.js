@@ -55,9 +55,17 @@ router.get('/timeframe', function(req, res) {
           // we are just interested in the CVE_Items array
           console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
           console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
-          
+          let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
           // calculate how big the array is
           console.log('how many things? ' + data.result.CVE_Items.length);
+          console.log(plzwork);
+
+          res.render('timeframe', { 
+            title: 'Update',
+            sometext: plzwork, 
+            title2: 'Check a file',
+            //info: allDescriptions
+           });
           
   })
 
