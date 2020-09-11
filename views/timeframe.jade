@@ -3,6 +3,11 @@ extends layout
 
 block content
   h1="Here is the full description"
-  p=sometext
-  h2= "Which can be summarized by:"
-  p Find related vulnerabilities to a keyword
+  p Finger crossed
+  ul
+    each val in sometext
+        p Hello worldd
+        p #{JSON.stringify(val)}
+            if val.list
+                each item in val
+                    p #{item}
