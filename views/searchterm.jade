@@ -2,7 +2,12 @@ extends layout
 
 
 block content
-  h1= term
+  h1= searchedFor
   p Here's some info
-  h2= "Select a timeframe"
-  p Find related vulnerabilities to a keyword
+  ul
+    each val in sometext
+        p Hello worldd
+        p #{JSON.stringify(val)}
+            if val.list
+                each item in val
+                    p #{item}

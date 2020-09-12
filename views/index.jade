@@ -11,7 +11,14 @@ block content
     div.input
       span.label Keyword
       input(type="text", name="keyword") 
-      button(type='submit') Search
+    select#resultNum(name='resultNum')
+      option() How many results
+      option(value='1') 1
+      option(value='2') 2
+      option(value='5') 5
+      option(value='10') 10
+      option(value='20') 20
+    button(type='submit') Searchh
 
   p Or select a timeframe to find vulnerabilities between
     form(action='/timeframe',name="timeframe", method="get")

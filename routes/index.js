@@ -4,27 +4,58 @@ const axios = require('axios').default;
 
 router.get('/searchterm', function(req, res) {
 
-  console.log("hello kiki");
   console.log(req.query);
   let keyword = req.query.keyword;
+  let resultNum = req.query.resultNum;
   console.log(keyword);
+  console.log("you earched for " +req.query.keyword +" and wanted " + 
+  req.query.resultNum+ "results");
+  
 
   /* NIST CVE API URL  */
   const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
   let keywordSearch = `?keyword=${keyword}`;
-  let numResults = '&resultsPerPage=5';
+  let numResults = `&resultsPerPage=${resultNum}`;
 
   axios
   .get(NIST_URL + keywordSearch + numResults)
-    .then((response) => {
-          
-    const { data } = response;
-    })
-  
-  res.render('searchterm', {
-    term: keyword,
-    }
-  )
+  .then((response) => {
+    console.log('got here')
+
+    // save the response to an object
+    let { data } = response;
+    console.log('attempt to display data');
+
+    // we are just interested in the CVE_Items array
+    console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
+    console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
+    let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
+    // calculate how big the array is
+    let itemsarr = data.result.CVE_Items;
+    console.log('how many things? ' + data.result.CVE_Items.length);
+    console.log(plzwork);
+
+    res.render('searchterm', { 
+      searchedFor: keyword,
+      sometext: itemsarr, 
+      title2: 'Check a file',
+      //info: allDescriptions
+     });
+    
+})
+
+// error handling
+.catch(err => {
+if (err.response) {
+console.log("5xx/4xx error");
+console.log(err);
+} else if (err.request) {
+console.log("something went wrong with response or request");
+console.log(err);
+}
+console.log(err);
+console.log("something went wrong, axios error");
+})
 });
 
 router.get('/timeframe', function(req, res) {
@@ -35,12 +66,13 @@ router.get('/timeframe', function(req, res) {
   let startYear = req.query.startYear;
   let endMonth = req.query.endMonth;
   let endYear = req.query.endYear;
+  let resultNum = req.query.resultNum;
   
 
   /* NIST CVE API URL  */
   const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
   let nistTimeFrame = `?pubStartDate=${startYear}-${startMonth}-01T00:00:00:000 UTC-05:00`;
-  let numResults = '&resultsPerPage=5';
+  let numResults = `&resultsPerPage=${startNum}`;
 
   axios
   .get(NIST_URL + nistTimeFrame + numResults)
