@@ -134,6 +134,9 @@ router.get('/checkhash', function(req, res) {
   console.log(req.query);
   let md5hash = req.query.inputHash;
   
+  // from https://virusshare.com/hashfiles/VirusShare_00000.md5 and 
+  // from https://www.fireeye.com/blog/threat-research/2017/05/wannacry-malware-profile.html
+  // other ideas https://www.cisecurity.org/blog/top-10-malware-january-2019/
   let testHash1 = "10c027b28bfb9c569268746dd805fa7f";
   let testHash2 = "ffb456a28adf28a05af5746f996a96dc";
   let wannaCry1 = "db349b97c37d22f5ea1d1841e3c89eb4";
@@ -150,28 +153,29 @@ router.get('/checkhash', function(req, res) {
 
     // save the response to an object
     let { data } = response;
+
+    // news api key
+    const newsKey = "c61555335ae647768b810bcdeef93736";
     console.log('attempt to display data');
     let display = JSON.stringify(data);
     //console.log(display);
 
     let symantecReport = data.scans.Symantec.result;
-    //let esetnod32Report = ["data"]["scans"]["ESET-NOD32"]["result"]; // BRACKETS REQUIRED TO BYPASS -
-    let bkavReport = data.scans.Bkav.result;
+    let sophosReport = data.scans.Sophos.result;
+    let kasperskyReport = data.scans.Kaspersky.result;
+    let alibabaReport = data.scans.Alibaba.result;
+    let trendmicroReport = data.scans.TrendMicro.result;
 
-    // we are just interested in the CVE_Items array
-    console.log(symantecReport);
-    console.log("1");
-    //console.log(esetnod32Report);
-    console.log("2");
-    console.log(bkavReport);
-    console.log("3");
-    // calculate how big the array is
+ 
 
 
     res.render('checkhash', { 
       hashSearched: md5hash,
       hashReport1: symantecReport,
-      hashReport2: bkavReport
+      hashReport2: sophosReport,
+      hashReport3: kasperskyReport,
+      hashReport4: alibabaReport,
+      hashReport5: trendmicroReport
      });
 
   })
