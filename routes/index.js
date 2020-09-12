@@ -107,6 +107,9 @@ router.get('/timeframe', function(req, res) {
     if (err.response) {
       console.log("5xx/4xx error");
       console.log(err);
+      res.render('error', {
+        message: "an error occured"
+      });
     } else if (err.request) {
       console.log("something went wrong with response or request");
       console.log(err);
@@ -120,8 +123,8 @@ router.get('/timeframe', function(req, res) {
 router.get('/', function(req, res) {
 
   res.render('index', { 
-    title: 'Recent Vulnerabilities', 
-    title2: 'Check a file',
+    title: "Find keyword regarding Vulnerabilities", 
+    title2: "Check a file's hash",
     //info: allDescriptions
    });
 });
