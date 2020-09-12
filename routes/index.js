@@ -154,17 +154,34 @@ router.get('/checkhash', function(req, res) {
     // save the response to an object
     let { data } = response;
 
-    // news api key
-    const newsKey = "c61555335ae647768b810bcdeef93736";
-    console.log('attempt to display data');
-    let display = JSON.stringify(data);
-    //console.log(display);
-
+    // best report summaries
     let symantecReport = data.scans.Symantec.result;
     let sophosReport = data.scans.Sophos.result;
     let kasperskyReport = data.scans.Kaspersky.result;
     let alibabaReport = data.scans.Alibaba.result;
     let trendmicroReport = data.scans.TrendMicro.result;
+
+    // news api key
+    let dummySearch = "apple";
+    const NEWS_API_URL = "https://newsapi.org/v2/everything";
+    const newsKey = "c61555335ae647768b810bcdeef93736";
+    let newsQuery = `?q=${dummySearch}&apiKey=${newsKey}`
+    console.log("aiya");
+    
+
+
+    axios
+    .get(NEWS_API_URL + newsQuery)
+    .then((response2) => {
+      
+      console.log("ok we made it");
+      let { data2 } = response2;
+      let textdata2 = JSON.stringify(data2);
+      console.log(textdata2);
+    })
+
+
+    
 
  
 
@@ -175,7 +192,8 @@ router.get('/checkhash', function(req, res) {
       hashReport2: sophosReport,
       hashReport3: kasperskyReport,
       hashReport4: alibabaReport,
-      hashReport5: trendmicroReport
+      hashReport5: trendmicroReport,
+      /*newsReport: okNowNews */
      });
 
   })
