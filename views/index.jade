@@ -72,11 +72,10 @@ block content
   h1= title2
   p Find information about a file
   h2= "Here you can check a file's fingerprint and find out information"
-  form(name="hashh", method="get")
-        div.input
-            span.label Hash
-            input(type="text", name="inputHash")
-          |  
-        div.actions
-            button2(type='search') Search
+  
+  form(action="/checkhash", name="hashh", method="get")
+    div.input
+      span.label Hash
+      input(type="text", name="inputHash")
+    button(type='search') SearchHash
 

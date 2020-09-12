@@ -132,11 +132,11 @@ router.get('/', function(req, res) {
 router.get('/checkhash', function(req, res) {
   
   console.log(req.query);
-  let md5hash = req.query.sentHash;
-  console.log(keyword);
-  console.log("you earched for " +req.query.keyword +" and wanted " + 
-  req.query.resultNum+ "results");
+  let md5hash = req.query.inputHash;
   
+  let testHash1 = "10c027b28bfb9c569268746dd805fa7f";
+  let testHash2 = "ffb456a28adf28a05af5746f996a96dc";
+  let wannaCry1 = "db349b97c37d22f5ea1d1841e3c89eb4";
 
   /* VIRUS TOTAL API URL  */
   const VIRUS_TOTAL_URL = "https://www.virustotal.com/vtapi/v2/file/report";
@@ -144,31 +144,53 @@ router.get('/checkhash', function(req, res) {
   let vtDomain = `&resource=${md5hash}`;
 
   axios
-  .get(VIRUS_TOTAL_API + vtKey + vtDomain)
+  .get(VIRUS_TOTAL_URL + vtKey + vtDomain)
   .then((response) => {
     console.log('vt api')
 
     // save the response to an object
     let { data } = response;
     console.log('attempt to display data');
+    let display = JSON.stringify(data);
+    //console.log(display);
+
+    let symantecReport = data.scans.Symantec.result;
+    //let esetnod32Report = ["data"]["scans"]["ESET-NOD32"]["result"]; // BRACKETS REQUIRED TO BYPASS -
+    let bkavReport = data.scans.Bkav.result;
 
     // we are just interested in the CVE_Items array
-    console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
-    console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
-    let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
+    console.log(symantecReport);
+    console.log("1");
+    //console.log(esetnod32Report);
+    console.log("2");
+    console.log(bkavReport);
+    console.log("3");
     // calculate how big the array is
-    let itemsarr = data.result.CVE_Items;
-    console.log('how many things? ' + data.result.CVE_Items.length);
-    console.log(plzwork);
 
-    res.render('searchterm', { 
-      searchedFor: keyword,
-      sometext: itemsarr, 
-      title2: 'Check a file',
-      //info: allDescriptions
+
+    res.render('checkhash', { 
+      hashSearched: md5hash,
+      hashReport1: symantecReport,
+      hashReport2: bkavReport
      });
 
-    })
+  })
+
+    // error handling
+  .catch(err => {
+    if (err.response) {
+      console.log("5xx/4xx error");
+      console.log(err);
+      res.render('error', {
+        message: "an error occured"
+      });
+    } else if (err.request) {
+      console.log("something went wrong with response or request");
+      console.log(err);
+    }
+    console.log(err);
+    console.log("something went wrong, axios error");
+  })
 })
 
 router.post('/', function (req, res) {
