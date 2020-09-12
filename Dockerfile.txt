@@ -1,0 +1,8 @@
+FROM node:12
+
+WORKDIR /usr/src/app
+
+# install nodemon
+RUN npm install nodemon -g
+
+EXPOSE 3000
