@@ -129,6 +129,47 @@ router.get('/', function(req, res) {
    });
 });
 
+router.get('/checkhash', function(req, res) {
+  
+  console.log(req.query);
+  let md5hash = req.query.sentHash;
+  console.log(keyword);
+  console.log("you earched for " +req.query.keyword +" and wanted " + 
+  req.query.resultNum+ "results");
+  
+
+  /* VIRUS TOTAL API URL  */
+  const VIRUS_TOTAL_URL = "https://www.virustotal.com/vtapi/v2/file/report";
+  const vtKey = '?apikey=ed88a13aa2d037961fe2150650a49f970b766f3151e684ecbbfb22f04b3d50ca';
+  let vtDomain = `&resource=${md5hash}`;
+
+  axios
+  .get(VIRUS_TOTAL_API + vtKey + vtDomain)
+  .then((response) => {
+    console.log('vt api')
+
+    // save the response to an object
+    let { data } = response;
+    console.log('attempt to display data');
+
+    // we are just interested in the CVE_Items array
+    console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
+    console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
+    let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
+    // calculate how big the array is
+    let itemsarr = data.result.CVE_Items;
+    console.log('how many things? ' + data.result.CVE_Items.length);
+    console.log(plzwork);
+
+    res.render('searchterm', { 
+      searchedFor: keyword,
+      sometext: itemsarr, 
+      title2: 'Check a file',
+      //info: allDescriptions
+     });
+
+    })
+})
 
 router.post('/', function (req, res) {
   console.log(req.body.selectDays);
