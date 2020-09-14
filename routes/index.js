@@ -80,8 +80,6 @@ router.get('/searchterm', function (req, res) {
                       message: errorMessage,
                       moretext: err
                     });
-                    //console.log("something went wrong with response or request");
-                    //console.log(err);
                   }
                   let errorMessage = "Axios error";
 
@@ -89,8 +87,6 @@ router.get('/searchterm', function (req, res) {
                       message: errorMessage,
                       moretext: err
                     });
-                  //console.log(err);
-                  //console.log("something went wrong, axios error");
                 })
             }
           });
@@ -98,20 +94,46 @@ router.get('/searchterm', function (req, res) {
       router.get('/timeframe', function (req, res) {
 
         console.log(req.query);
-        let startMonth = req.query.startMonth;
-        let startYear = req.query.startYear;
-        let endMonth = req.query.endMonth;
-        let endYear = req.query.endYear;
-        let resultNum = req.query.resultNum;
 
+        // define validation schema
+      const schema = Joi.object({
+        startMonth: Joi.number().min(1).max(12).positive().integer().required(),
+        startYear: Joi.number().min(1995).max(2020).positive().integer().required(),
+        endMonth: Joi.number().min(1).max(12).positive().integer(),
+        endYear: Joi.number().min(Joi.ref('startYear')).max(2020).positive().integer(),
+        resultNum: Joi.number().min(1).max(10).positive().integer(),
+      });
 
+      // validate the request data against the schema
+      let holdInput = schema.validate(req.query);
+      console.log("the input is  " + JSON.stringify(holdInput));
+
+      // check if anything went wrong
+      if (holdInput.error) {
+        let errorMessage = holdInput.error.details[0].message;
+        console.log("error is " + errorMessage);
+        // error page
+        res.render('error', {
+          message: errorMessage,
+        });
+      } else {
+        console.log("ok without error");
+        // assign values
+        let startMonth = holdInput.value.startMonth;
+        let startYear = holdInput.value.startYear;
+        let endMonth = holdInput.value.endMonth;
+        let endYear = holdInput.value.endYear;
+        let resultNum = holdInput.value.resultNum;
+
+        
         /* NIST CVE API URL  */
         const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
-        let nistTimeFrame = `?pubStartDate=${startYear}-${startMonth}-01T00:00:00:000 UTC-05:00`;
-        let numResults = `&resultsPerPage=${startNum}`;
-
+        let startTime = `?pubStartDate=${startYear}-${startMonth}-01T00:00:00:000 UTC-05:00`;
+        let endTime = `?pubStartDate=${endYear}-${endMonth}-01T00:00:00:000 UTC-05:00`;
+        let numResults = `&resultsPerPage=${resultNum}`;
+        console.log("maybe not");
         axios
-          .get(NIST_URL + nistTimeFrame + numResults)
+          .get(NIST_URL + startTime + endTime + numResults)
 
           .then((response) => {
             console.log('got here')
@@ -122,39 +144,62 @@ router.get('/searchterm', function (req, res) {
             } = response;
             console.log('attempt to display data');
 
-            // we are just interested in the CVE_Items array
-            console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
-            console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
-            let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
-            // calculate how big the array is
-            let itemsarr = data.result.CVE_Items;
-            console.log('how many things? ' + data.result.CVE_Items.length);
-            console.log(plzwork);
+            let infoArray = [];
+              let infoArraySize = data.result.CVE_Items.length;
+          
+              if (infoArraySize > 0) {
+                let i;
+                for (i = 0; i < infoArraySize; i++) {
+                  let tempObj = {}
+                  tempObj = data.result.CVE_Items[i].cve.description.description_data[0].value;
+                  infoArray.push(tempObj);
+                  console.log("iterating");
+                  //console.log(infoArray[i]);
+                }
+              }
+
+
+
+
+
+
+
 
             res.render('timeframe', {
               title: 'Update',
-              sometext: itemsarr,
+              sometext: infoArray,
               title2: 'Check a file',
               //info: allDescriptions
             });
 
+          }).catch(err => {
+            if (err.response) {
+              let errorMessage = "5__ / 4__ error";
+
+              res.render('error', {
+                message: errorMessage,
+                moretext: err
+              });
+              
+            } else if (err.request) {
+              let errorMessage = "Something went wrong with response or request";
+
+              res.render('error', {
+                message: errorMessage,
+                moretext: err
+              });
+            } else {
+            let errorMessage = "Axios error";
+
+              res.render('error', {
+                message: errorMessage,
+                moretext: err
+              });
+            }
           })
 
-          // error handling
-          .catch(err => {
-            if (err.response) {
-              console.log("5xx/4xx error");
-              console.log(err);
-              res.render('error', {
-                message: "an error occured"
-              });
-            } else if (err.request) {
-              console.log("something went wrong with response or request");
-              console.log(err);
-            }
-            console.log(err);
-            console.log("something went wrong, axios error");
-          })
+          // end of error
+        }
       });
 
       /* GET home page. */
