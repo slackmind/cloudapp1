@@ -5,13 +5,16 @@ const axios = require('axios').default;
 router.get('/searchterm', function(req, res) {
 
   console.log(req.query);
+  //let tempKeyword = req.query.keyword;
+  //let tempResultNum = req.query.resultNum;
+  
   let keyword = req.query.keyword;
   let resultNum = req.query.resultNum;
+
   console.log(keyword);
   console.log("you earched for " +req.query.keyword +" and wanted " + 
   req.query.resultNum+ "results");
   
-
   /* NIST CVE API URL  */
   const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
   let keywordSearch = `?keyword=${keyword}`;
@@ -20,24 +23,37 @@ router.get('/searchterm', function(req, res) {
   axios
   .get(NIST_URL + keywordSearch + numResults)
   .then((response) => {
-    console.log('got here')
-
+    console.log('check that this part works')
+    
     // save the response to an object
     let { data } = response;
-    console.log('attempt to display data');
-
+    let infoArray = [];
+    let infoArraySize = data.result.CVE_Items.length;
+    console.log("finger crossed " + infoArraySize);
     // we are just interested in the CVE_Items array
-    console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
-    console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
-    let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
+    //console.log(data.result.CVE_Items[0].cve.description.description_data[0].value);
+    //console.log(data.result.CVE_Items[1].cve.description.description_data[0].value);
+    //let plzwork = data.result.CVE_Items[0].cve.description.description_data[0].value
     // calculate how big the array is
+
     let itemsarr = data.result.CVE_Items;
-    console.log('how many things? ' + data.result.CVE_Items.length);
-    console.log(plzwork);
+    if (infoArraySize > 0) {
+      console.log("fingers crossed 2");
+      let i;
+      for (i = 0; i< infoArraySize; i++) {
+        let tempObj = {}
+        tempObj = data.result.CVE_Items[i].cve.description.description_data[0].value;
+        infoArray.push(tempObj);
+        console.log("3");
+        console.log(infoArray[i]);
+      }
+    }
+    console.log('how many things? ' + infoArray.length);
+    //console.log(plzwork);
 
     res.render('searchterm', { 
       searchedFor: keyword,
-      sometext: itemsarr, 
+      sometext: infoArray, 
       title2: 'Check a file',
       //info: allDescriptions
      });
@@ -61,7 +77,6 @@ console.log("something went wrong, axios error");
 router.get('/timeframe', function(req, res) {
 
   console.log(req.query);
-  let days = req.query.days;
   let startMonth = req.query.startMonth;
   let startYear = req.query.startYear;
   let endMonth = req.query.endMonth;
