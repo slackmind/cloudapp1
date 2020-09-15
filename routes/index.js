@@ -224,6 +224,7 @@ router.get('/searchterm', async function (req, res) {
     // Azure Language Processing API
     const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
     const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
+    //const azureKey = process.env.MSFKEY
 
     //  create new client with my endpoint and API key
     const textAnalyticsClient = new TextAnalyticsClient(
@@ -317,11 +318,9 @@ router.get('/checkhash', async function (req, res) {
   let testHash2 = "ffb456a28adf28a05af5746f996a96dc";
   let wannaCry1 = "db349b97c37d22f5ea1d1841e3c89eb4";
 
-  /* VIRUS TOTAL API URL  */
-  //const VIRUS_TOTAL_URL = process.env.VT_KEY
-  const loadVTKey = process.env.virusTotalKey;
   const VIRUS_TOTAL_URL = "https://www.virustotal.com/vtapi/v2/file/report";
   const VIRUS_TOTAL_KEY = "ed88a13aa2d037961fe2150650a49f970b766f3151e684ecbbfb22f04b3d50ca";
+  // const VIRUS_TOTAL_KEY = process.env.VTKEY
   const vtKey = `?apikey=${VIRUS_TOTAL_KEY}`;
   let vtDomain = `&resource=${fileHash}`;
   
@@ -408,12 +407,10 @@ router.get('/checkhash', async function (req, res) {
   } 
 
   searchNews = reportArray[0];
-  console.log(searchNews);
   const NEWS_API_URL = "https://newsapi.org/v2/everything";
   const newsKey = "c61555335ae647768b810bcdeef93736";
+  //const newsKey = process.env.NEWSKEY;
   let newsQuery = `?q=${searchNews}&apiKey=${newsKey}`
-  console.log()
-  console.log("news api sent" + NEWS_API_URL + newsQuery);
 
   try {
     const response = await axios.get(NEWS_API_URL + newsQuery)

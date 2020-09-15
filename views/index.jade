@@ -20,7 +20,7 @@ block content
     button(type='submit') Search
 
 
-  h1 Or select a timeframe to find vulnerabilities between
+  h1 Or select a date to find vulnerabilities before
     form(action='/timeframe',name="timeframe", method="get")
       select#startMonth(name='startMonth')
         option() Month
@@ -38,6 +38,14 @@ block content
         option(value='12') December 
       select#startYear(name='startYear')
         option() Year
+        option(value='1999') 1999
+        option(value='2000') 2000
+        option(value='2001') 2001
+        option(value='2002') 2002
+        option(value='2003') 2003
+        option(value='2004') 2004
+        option(value='2005') 2005
+        option(value='2006') 2006
         option(value='2007') 2007
         option(value='2008') 2008
         option(value='2009') 2009
