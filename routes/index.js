@@ -96,10 +96,12 @@ router.get('/searchterm', async function (req, res) {
         
         const keyPhraseResult = await client.extractKeyPhrases(infoArray);
         
-        keyPhraseResult.forEach(document => {
+       /* keyPhraseResult.forEach(document => {
+
+            document.keyPhrases.replace(/,/g, ', ');
             //console.log(`ID: ${document.id}`);
             //console.log(`\tDocument Key Phrases: ${document.keyPhrases}`);
-        });
+        }); */
         console.log(keyword);
         console.log(keyPhraseResult[0].keyPhrases);
         res.render('searchterm', {

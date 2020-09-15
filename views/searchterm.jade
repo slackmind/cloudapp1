@@ -9,3 +9,5 @@ block content
     each val in sometext
         p The Key Phrases
         p #{val.keyPhrases}
+          each phrase in val.keyPhrases
+            span=phrase
