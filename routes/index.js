@@ -26,7 +26,9 @@ router.get('/searchterm', async function (req, res) {
     res.render('error', {
       message: errorMessage,
     });
-  } else {
+  } 
+  
+  else {
 
     let keyword = holdInput.value.keyword;        //  assign using the sanitized input
     let resultNum = holdInput.value.resultNum;
@@ -125,8 +127,9 @@ router.get('/searchterm', async function (req, res) {
    }
 });
 
-router.get('/timeframe', function (req, res) {
+router.get('/timeframe', async function (req, res) {
 
+  let infoArray = [];
   console.log(req.query);
 
   // define validation schema
@@ -150,18 +153,16 @@ if (holdInput.error) {
   res.render('error', {
     message: errorMessage,
   });
-} else {
+} 
+
+else {
   console.log("ok without error");
   // assign values
-  let startMonth = ('0' + holdInput.value.startMonth).slice(-2);
+  let startMonth = ('0' + holdInput.value.startMonth).slice(-2); // add leading 0 if < 10
   let startYear = holdInput.value.startYear;
-  let endMonth = holdInput.value.endMonth;
+  let endMonth = ('0' + holdInput.value.endMonth).slice(-2);
   let endYear = holdInput.value.endYear;
   let resultNum = holdInput.value.resultNum;
-
-  console.log(startMonth);
-  startMonth = ('0' + startMonth).slice(-2);
-  console.log(startMonth);
 
   
   /* NIST CVE API URL  */
@@ -171,6 +172,106 @@ if (holdInput.error) {
   let numResults = `&resultsPerPage=${resultNum}`;
   let testt = "https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate=2019-01-01T00:00:00:000%20UTC-05:00";
   console.log("maybe not");
+  
+  
+  try {
+    const response = await axios.get(testt)
+
+    let { data } = response
+    let infoArraySize = data.result.CVE_Items.length;
+
+    if (infoArraySize > 0) {
+      let i;
+      for (i = 0; i < infoArraySize; i++) {
+        let tempObj = {}      // define intermediate object within loop
+        tempObj = data.result.CVE_Items[i].cve.description.description_data[0].value;
+        infoArray.push(tempObj);
+        console.log("iterating");
+      }
+    }
+  }  catch(err) {
+    if (err.response) {
+      let errorMessage = "5__ / 4__ error";
+      res.render('error', {     // error page
+        message: errorMessage,
+        moretext: err
+      });
+    } else if (err.request) {
+      let errorMessage = "Something went wrong with response or request";
+      res.render('error', {
+        message: errorMessage,
+        moretext: err
+      });
+    } else {
+    let errorMessage = "Axios error";
+      res.render('error', {
+        message: errorMessage,
+        moretext: err
+      });
+    }
+  }
+
+  // Azure Language Processing API
+  const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
+  const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
+
+  //  create new client with my endpoint and API key
+  const textAnalyticsClient = new TextAnalyticsClient(
+    azureEndPoint,  new AzureKeyCredential(azureKey));
+  
+  /* from https://docs.microsoft.com/en-us/azure/cognitive-services
+  /text-analytics/quickstarts/text-analytics-sdk?pivots=programming-
+  language-javascript&tabs=version-3#client-authentication */
+  async function keyPhraseExtraction(client){
+      
+      const keyPhraseResult = await client.extractKeyPhrases(infoArray);
+      
+      keyPhraseResult.forEach(document => {
+          //console.log(`ID: ${document.id}`);
+          //console.log(`\tDocument Key Phrases: ${document.keyPhrases}`);
+      });
+      console.log(keyword);
+      console.log(keyPhraseResult[0].keyPhrases);
+      res.render('timeframe', {
+        startMonth: startMonth,
+        startYear: startYear,
+        sometext: keyPhraseResult,
+       
+      });
+  }
+      
+      try {
+        await keyPhraseExtraction(textAnalyticsClient);
+      } catch(err) {
+        if (err.response) {
+          let errorMessage = "5__ / 4__ error";
+          res.render('error', {
+            message: errorMessage,
+            moretext: err
+          });
+        } else if (err.request) {
+          let errorMessage = "Something went wrong with response or request";
+          res.render('error', {
+            message: errorMessage,
+            moretext: err
+          });
+        }
+        let errorMessage = "Axios error";
+          res.render('error', {
+            message: errorMessage,
+            moretext: err
+          });
+      }
+ }
+  
+  
+  
+  
+  
+  
+  
+  /*
+  
   axios
     .get(NIST_URL + startTime + numResults)
 
@@ -231,8 +332,8 @@ if (holdInput.error) {
       }
     })
 
-    // end of error
-  }
+    // end of error */
+  
 });
 
 /* GET home page. */
@@ -253,9 +354,9 @@ router.get('/checkhash', function (req, res) {
   console.log(req.query);
 
   // define validation schema
-const schema = Joi.object({
-  inputHash: Joi.string().alphanum().min(32).max(64).required()
-});
+  const schema = Joi.object({
+  inputHash: Joi.string().min(32).max(64).hex().required()
+  });
 
 // validate the request data against the schema
 let holdInput = schema.validate(req.query);
