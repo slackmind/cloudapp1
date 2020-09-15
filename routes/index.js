@@ -4,6 +4,7 @@ var router = express.Router();
 const axios = require('axios').default;
 const Joi = require('joi'); // input validation
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
+const { PreconditionFailed } = require('http-errors');
 
 router.get('/searchterm', async function (req, res) {
 
@@ -25,24 +26,19 @@ router.get('/searchterm', async function (req, res) {
     res.render('error', {     // error page
       message: errorMessage,
     });
+    return;
   } 
-  
   else {
-
     let keyword = holdInput.value.keyword;        //  assign using the sanitized input
     let resultNum = holdInput.value.resultNum;
-    let startMonth = ('0' + holdInput.value.startMonth).slice(-2); // add leading 0 if < 10
-    let startYear = holdInput.value.startYear;
-    console.log(startYear);
-    console.log(startMonth);
+    //let startMonth = ('0' + holdInput.value.startMonth).slice(-2); // add leading 0 if < 10
+    //let startYear = holdInput.value.startYear;
 
     const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
     let keywordSearch = `?keyword=${keyword}`;
     let numResults = `&resultsPerPage=${resultNum}`;
-    let timeFrame = `?modStartDate=${startYear}-${startMonth}-01T00:00:00:000 UTC-05:00`;
-
     try {
-      const response = await axios.get(NIST_URL + timeFrame + keywordSearch + numResults)
+      const response = await axios.get(NIST_URL + keywordSearch + numResults)
       console.log("query url with all the things");
       let { data } = response;
       let infoArraySize = data.result.CVE_Items.length;
@@ -64,18 +60,23 @@ router.get('/searchterm', async function (req, res) {
           message: errorMessage,
           moretext: err
         });
-      } else if (err.request) {
+        return;
+      } 
+      else if (err.request) {
         let errorMessage = "Something went wrong with response or request";
         res.render('error', {
           message: errorMessage,
           moretext: err
         });
-      } else {
+        return;
+      } 
+      else {
       let errorMessage = "Axios error";
         res.render('error', {
           message: errorMessage,
           moretext: err
         });
+        return;
       }
     }
 
@@ -110,25 +111,32 @@ router.get('/searchterm', async function (req, res) {
         
         try {
           await keyPhraseExtraction(textAnalyticsClient);
-        } catch(err) {
+        } 
+        catch(err) {
           if (err.response) {
             let errorMessage = "5__ / 4__ error";
             res.render('error', {
               message: errorMessage,
               moretext: err
             });
-          } else if (err.request) {
+            return;
+          } 
+          else if (err.request) {
             let errorMessage = "Something went wrong with response or request";
             res.render('error', {
               message: errorMessage,
               moretext: err
             });
-          }
+            return;
+          } 
+          else {
           let errorMessage = "Axios error";
             res.render('error', {
               message: errorMessage,
               moretext: err
             });
+            return;
+        }
         }
    }
 });
@@ -143,23 +151,21 @@ router.get('/', function (req, res) {
   res.render('index', {
     title: firstPart,
     title2: secondPart,
-    //info: allDescriptions
   });
 });
 
 router.get('/checkhash', async function (req, res) {
 
+  console.log(req.query);
   // variables to store responses and use to query News
   let symantecReport;
   let sophosReport;
   let kasperskyReport;
   let microsoftReport;
-  let trendmicroReport;
+  let trendMicroReport;
   let yandexReport;
   let cylanceReport;
-
-  console.log(req.query);
-
+  let reportArray = [];
   
   const schema = Joi.object({       // validation (md5,sha1, sha256 are 32-64 hex characters)
   inputHash: Joi.string().min(32).max(64).hex().required()
@@ -176,6 +182,7 @@ router.get('/checkhash', async function (req, res) {
     res.render('error', {   // error page
       message: errorMessage,
     });
+    return;
   } 
 
 else {
@@ -196,45 +203,61 @@ else {
   const VIRUS_TOTAL_KEY = "ed88a13aa2d037961fe2150650a49f970b766f3151e684ecbbfb22f04b3d50ca";
   const vtKey = `?apikey=${VIRUS_TOTAL_KEY}`;
   let vtDomain = `&resource=${fileHash}`;
-
-
   
   try {
     const response = await axios.get(VIRUS_TOTAL_URL + vtKey + vtDomain)
 
     let { data } = response;
+    console.log("logging data scans " + data.scans);
+    if (data.scans) {
 
-    console.log("logging data.scans" + JSON.stringify(data.scans));
-    if ( data.scans ) {
-
-      // best report summaries with regex to clean
-      if (data.scans.Symantec.detected === "true") {
-      symantecReport = data.scans.Symantec.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      }
-      if (data.scans.Sophos.detected === "true") {
-      sophosReport = data.scans.Sophos.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      }
-      if (data.scans.Kaspersky.detected === "true") {
-      kasperskyReport = data.scans.Kaspersky.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      }
-      if (data.scans.Microsoft.detected === "true") {
-      microsoftReport = data.scans.Microsoft.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      }
-      if (data.scans.Yandex.detected === "true") {
-      yandexReport = data.scans.YandexMicro.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      }
-      if (data.scans.Cylance.detected === "true") {
-      cylanceReport = data.scans.Cylance.result
+      console.log("from symantec: ", data.scans.Symantec);
+      // add best report summaries to array, with regex to clean 
+      console.log("check data scans symantec " + data.scans.Symantec.detected);
+      if (data.scans.Symantec.detected === true) {
+        
+        console.log("check result " + data.scans.Symantec.result);
+        symantecReport = data.scans.Symantec.result
         .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        console.log(symantecReport);
+        reportArray.push(symantecReport);
+      }
+      if (data.scans.Sophos.detected === true) {
+        sophosReport = data.scans.Sophos.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        reportArray.push(sophosReport);
+      }
+      if (data.scans.Kaspersky.detected.length === true) {
+        kasperskyReport = data.scans.Kaspersky.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        reportArray.push(kasperskyReport);
+      }
+      if (data.scans.Microsoft.detected.length === true) {
+        microsoftReport = data.scans.Microsoft.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        console.log("microsoft" + microsoftReport);
+        reportArray.push(microsoftReport);
+      }
+      if (data.scans.Yandex.detected.length === true) {
+        yandexReport = data.scans.YandexMicro.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        reportArray.push(yandexReport);
+      }
+      if (data.scans.Cylance.detected.length === true) {
+        cylanceReport = data.scans.Cylance.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        reportArray.push(cylanceReport);
+      }
+      if (data.scans.TrendMicro.detected === true) {
+        trendMicroReport = data.scans.TrendMicro.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        reportArray.push(trendMicroReport);
+        console.log("trend micro" + trendMicroReport);
       }
   }
     
-  }  catch(err) {
+  }  
+  catch(err) {
     if (err.response) {
       console.log("error1");
       let errorMessage = "5__ / 4__ error";
@@ -242,26 +265,34 @@ else {
         message: errorMessage,
         moretext: err
       });
-    } else if (err.request) {
+      return;
+    } 
+    else if (err.request) {
       let errorMessage = "Something went wrong with response or request";
       res.render('error', {
         message: errorMessage,
         moretext: err
       });
-    } else {
+      return;
+    } 
+    else {
       console.log("error3");
     let errorMessage = "Axios error";
       res.render('error', {
         message: errorMessage,
         moretext: err
       });
+      return;
     }
-  }
+  } 
 
+  let searchNews = reportArray[0];
+  console.log(searchNews);
   const NEWS_API_URL = "https://newsapi.org/v2/everything";
   const newsKey = "c61555335ae647768b810bcdeef93736";
-  let newsQuery = `?q=${symantecReport}&apiKey=${newsKey}`
-  console.log(NEWS_API_URL + newsQuery);
+  let newsQuery = `?q=${searchNews}&apiKey=${newsKey}`
+  console.log()
+  console.log("news api sent" + NEWS_API_URL + newsQuery);
 
   try {
     const response = await axios.get(NEWS_API_URL + newsQuery)
@@ -269,9 +300,6 @@ else {
     let { data } = response;
 
     let newsArticles = data.totalResults;
-    if (newsArticles === 0) {
-      console.log("no news!");
-    }
     let newsSource = data.articles[0].source.name;
     let newsTitle = data.articles[0].title;
     let newsText = data.articles[0].description;
@@ -282,14 +310,13 @@ else {
     console.log(newsText);
 
     res.render('checkhash', {
-      hashSearched: fileHash,
-      hashReport1: symantecReport,
-      hashReport2: sophosReport,
-      hashReport3: kasperskyReport,
-      hashReport4: microsoftReport,
-      hashReport5: trendmicroReport,
-      newsReport: newsText
+      searchTopic: searchNews,
+      numArticles: newsArticles,
+      newsSource: newsSource,
+      newsTitle: newsTitle,
+      newsText: newsText,
     });
+    
   }
   catch(err) {
     if (err.response) {
@@ -298,23 +325,26 @@ else {
         message: errorMessage,
         moretext: err
       });
+      return;
     } else if (err.request) {
       let errorMessage = "Something went wrong with response or request";
       res.render('error', {
         message: errorMessage,
         moretext: err
       });
+      return;
     } else {
-    let errorMessage = "Axios error";
-      res.render('error', {
-        message: errorMessage,
-        moretext: err
-      });
-    }
+      let errorMessage = "Axios error";
+        res.render('error', {
+          message: errorMessage,
+          moretext: err
+        });
+        return;
+      }
+      
   }
   
-}
-  
+  }
 });
 
 router.post('/', function (req, res) {

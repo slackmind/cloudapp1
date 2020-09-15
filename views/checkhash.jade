@@ -1,16 +1,12 @@
 extends layout
 
 block content
-  h1= hashSearched
-  p From Symantec
-  p= hashReport1
-  p From Sophos
-  p= hashReport2
-  p From Kaspersky
-  p= hashReport3
-  p From Alibaba
-  p= hashReport4
-  p From TrendMicro
-  p= hashReport5
-  p Now for the News
-  p= newsReport
+  h1= "You searched for " + searchTopic
+  p The topic you searched was
+  p=searchTopic
+  p="We found " + newsArticles
+  p This report is from
+  p=newsSource
+  p=newsTitle
+  p=newsText
+

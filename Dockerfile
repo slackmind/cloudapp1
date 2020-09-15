@@ -1,8 +1,8 @@
 FROM node:12
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . /usr/src/app
+COPY . /app
 
 # install 
 RUN npm install
