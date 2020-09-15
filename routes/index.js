@@ -12,18 +12,16 @@ router.get('/searchterm', async function (req, res) {
   let infoArray = [];             // store the first response from the API
   
   const schema = Joi.object({     // define validation schema
-    keyword: Joi.string().alphanum().min(3).max(16).required(),
-    resultNum: Joi.number().min(1).max(20).positive().integer().required(),
+    keyword: Joi.string().alphanum().min(3).max(20).required(),
+    resultNum: Joi.number().min(1).max(10).positive().integer().required(),
   });
 
   let holdInput = schema.validate(req.query); // validate the request data using schema
-  console.log("the input is  " + JSON.stringify(holdInput));
   
   if (holdInput.error) {      // check if anything went wrong
     let errorMessage = holdInput.error.details[0].message;
-    console.log("error is " + errorMessage);
-    // error page
-    res.render('error', {
+
+    res.render('error', {     // error page
       message: errorMessage,
     });
   } 
@@ -40,10 +38,10 @@ router.get('/searchterm', async function (req, res) {
     try {
       const response = await axios.get(NIST_URL + keywordSearch + numResults)
 
-      let { data } = response
+      let { data } = response;
       let infoArraySize = data.result.CVE_Items.length;
   
-      if (infoArraySize > 0) {
+      if (infoArraySize > 0) {    // check we got anything back
         let i;
         for (i = 0; i < infoArraySize; i++) {
           let tempObj = {}      // define intermediate object within loop
@@ -131,7 +129,6 @@ router.get('/searchterm', async function (req, res) {
 router.get('/timeframe', async function (req, res) {
 
   let infoArray = [];
-  console.log(req.query);
 
   // define validation schema
   const schema = Joi.object({
@@ -144,7 +141,6 @@ router.get('/timeframe', async function (req, res) {
 
 // validate the request data against the schema
 let holdInput = schema.validate(req.query);
-console.log("the input is  " + JSON.stringify(holdInput));
 
 // check if anything went wrong
 if (holdInput.error) {
@@ -221,17 +217,14 @@ else {
                                 azureEndPoint,  
                                 new AzureKeyCredential(azureKey));
   
-  /* from https://docs.microsoft.com/en-us/azure/cognitive-services
-  /text-analytics/quickstarts/text-analytics-sdk?pivots=programming-
-  language-javascript&tabs=version-3#client-authentication */
   async function keyPhraseExtraction(client){
       
       const keyPhraseResult = await client.extractKeyPhrases(infoArray);
       
-      keyPhraseResult.forEach(document => {
+      //keyPhraseResult.forEach(document => {
           //console.log(`ID: ${document.id}`);
           //console.log(`\tDocument Key Phrases: ${document.keyPhrases}`);
-      });
+      //});
       console.log(keyword);
       console.log(keyPhraseResult[0].keyPhrases);
 
@@ -266,9 +259,6 @@ else {
           });
       }
  }
-  
-  
-  
   
   
 });
@@ -341,18 +331,20 @@ else {
 
     let { data } = response;
 
-    // best report summaries with regex to clean
-    symantecReport = data.scans.Symantec.result
-    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-    sophosReport = data.scans.Sophos.result
-    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-    kasperskyReport = data.scans.Kaspersky.result
-    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-    alibabaReport = data.scans.Alibaba.result
-    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-    trendmicroReport = data.scans.TrendMicro.result
-    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+    if ( data.scans ) {
 
+      // best report summaries with regex to clean
+      symantecReport = data.scans.Symantec.result
+      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      sophosReport = data.scans.Sophos.result
+      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      kasperskyReport = data.scans.Kaspersky.result
+      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      alibabaReport = data.scans.Alibaba.result
+      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      trendmicroReport = data.scans.TrendMicro.result
+      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+  }
     
   }  catch(err) {
     if (err.response) {
@@ -377,7 +369,6 @@ else {
   }
 
   // news api key
-  let dummySearch = "apple";
   const NEWS_API_URL = "https://newsapi.org/v2/everything";
   const newsKey = "c61555335ae647768b810bcdeef93736";
   let newsQuery = `?q=${symantecReport}&apiKey=${newsKey}`
@@ -389,6 +380,9 @@ else {
     let { data } = response;
 
     let newsArticles = data.totalResults;
+    if (newsArticles === 0) {
+      console.log("no news!");
+    }
     let newsSource = data.articles[0].source.name;
     let newsTitle = data.articles[0].title;
     let newsText = data.articles[0].description;
@@ -397,6 +391,7 @@ else {
     console.log("from " + newsSource);
     console.log("Title: " + newsTitle);
     console.log(newsText);
+
     res.render('checkhash', {
       hashSearched: fileHash,
       hashReport1: symantecReport,
@@ -428,60 +423,6 @@ else {
       });
     }
   }
-
-/*
-  axios
-    .get(VIRUS_TOTAL_URL + vtKey + vtDomain)
-    .then((response) => {
-      console.log('vt api')
-
-      // save the response to an object
-      let {
-        data
-      } = response;
-
-      // best report summaries
-      let symantecReport = data.scans.Symantec.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      let sophosReport = data.scans.Sophos.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      let kasperskyReport = data.scans.Kaspersky.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      let alibabaReport = data.scans.Alibaba.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      let trendmicroReport = data.scans.TrendMicro.result
-      .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-
-      // news api key
-      let dummySearch = "apple";
-      const NEWS_API_URL = "https://newsapi.org/v2/everything";
-      const newsKey = "c61555335ae647768b810bcdeef93736";
-      let newsQuery = `?q=${dummySearch}&apiKey=${newsKey}`
-      console.log(NEWS_API_URL + newsQuery);
-
-
-
-      axios
-        .get(NEWS_API_URL + newsQuery)
-        .then((response) => {
-
-          console.log("ok we made it");
-          console.log(response);
-          let {
-            data2
-          } = response;
-          console.log(data2);
-          let textdata2 = JSON.stringify(data2);
-          console.log(textdata2);
-        })
-
-        
-
-
-
-      
-      */
-  
 
   
 }
