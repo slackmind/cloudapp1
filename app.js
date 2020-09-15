@@ -6,8 +6,7 @@ var logger = require('morgan');
 const Joi = require('joi');     // input validation
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var infoRouter = require('./routes/info');
+var timeframeRouter = require('./routes/time');
 
 var app = express();
 
@@ -26,8 +25,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/searchterm', indexRouter);
 app.use('/checkhash', indexRouter);
-app.use('/timeframe', indexRouter);
-//app.use('/info', infoRouter);
+app.use('/time', timeframeRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

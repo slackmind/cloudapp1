@@ -19,7 +19,7 @@ block content
 
 
   h1 Find vulnerabilites after a particular Month/Year
-    form(action='/timeafter',name="timeframe", method="get")
+    form(action='/time/timeafter',name="timeframe", method="get")
       select#startMonth(name='startMonth')
         option() Month
         option(value='01') January
@@ -60,7 +60,7 @@ block content
       button(type='submit') Submit
 
   h1 Or search for vulnerabilities discoverd before a Month/Year
-    form(action='/timebefore',name="timeafter", method="get")
+    form(action='/time/timebefore',name="timeafter", method="get")
       select#startMonth(name='endMonth')
         option() Month
         option(value='01') January
