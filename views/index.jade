@@ -11,28 +11,6 @@ block content
     div.input
       span.label Keyword
       input(type="text", name="keyword") 
-    select#startMonth(name='startMonth')
-        option() Month
-        option(value='01') January
-        option(value='02') February
-        option(value='03') March
-        option(value='04') April
-        option(value='05') May
-        option(value='06') June
-        option(value='07') July
-        option(value='08') August        
-        option(value='09') September
-        option(value='10') October
-        option(value='11') November
-        option(value='12') December 
-      select#startYear(name='startYear')
-        option() Year
-        option(value='2015') 2015
-        option(value='2016') 2016
-        option(value='2017') 2017 
-        option(value='2018') 2018
-        option(value='2019') 2019
-        option(value='2020') 2020
     select#resultNum(name='resultNum')
       option() How many results
       option(value='1') 1
@@ -41,62 +19,14 @@ block content
       option(value='10') 10
     button(type='submit') Search
 
-  p Or select a timeframe to find vulnerabilities between
-    form(action='/timeframe',name="timeframe", method="get")
-      select#startMonth(name='startMonth')
-        option() Month
-        option(value='01') January
-        option(value='02') February
-        option(value='03') March
-        option(value='04') April
-        option(value='05') May
-        option(value='06') June
-        option(value='07') July
-        option(value='08') August        
-        option(value='09') September
-        option(value='10') October
-        option(value='11') November
-        option(value='12') December 
-      select#startYear(name='startYear')
-        option() Year
-        option(value='2015') 2015
-        option(value='2016') 2016
-        option(value='2017') 2017 
-        option(value='2018') 2018
-        option(value='2019') 2019
-        option(value='2020') 2020
-      select#endMonth(name='endMonth')
-        option() Month
-        option(value='01') January
-        option(value='02') February
-        option(value='03') March
-        option(value='04') April
-        option(value='05') May
-        option(value='06') June
-        option(value='07') July
-        option(value='08') August        
-        option(value='09') September
-        option(value='10') October
-        option(value='11') November
-        option(value='12') December 
-      select#endYear(name='endYear')
-        option() Year
-        option(value='2015') 2015
-        option(value='2016') 2016
-        option(value='2017') 2017 
-        option(value='2018') 2018
-        option(value='2019') 2019
-        option(value='2020') 2020       
-      button(type='submit') Submit
-    
-
   h1= title2
   p Find information about a file
   h2= "Here you can check a file's fingerprint and find out information"
   
-  form(action="/checkhash", name="hashh", method="get")
+  form(action="/checkhash", name="hash", method="get")
     div.input
       span.label Hash
+      h2= "Please enter the hash of a file you wish to discover news about"
       input(type="text", name="inputHash")
-    button(type='search') SearchHash
+      button(type='search') SearchHash
 

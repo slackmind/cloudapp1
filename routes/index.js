@@ -13,8 +13,6 @@ router.get('/searchterm', async function (req, res) {
   const schema = Joi.object({     // define validation schema
     keyword: Joi.string().alphanum().min(3).max(20).required(),
     resultNum: Joi.number().min(1).max(10).positive().integer().required(),
-    startMonth: Joi.number().min(1).max(12).positive().integer().required(),
-    startYear: Joi.number().min(1995).max(2020).positive().integer().required(),
   });
 
   let holdInput = schema.validate(req.query); // validate the request data using schema
@@ -167,7 +165,9 @@ router.get('/checkhash', async function (req, res) {
   let trendMicroReport;
   let yandexReport;
   let cylanceReport;
+  let searchNews;
   let reportArray = [];
+  let articleArray = [];
   
   const schema = Joi.object({       // validation (md5,sha1, sha256 are 32-64 hex characters)
   inputHash: Joi.string().min(32).max(64).hex().required()
@@ -288,7 +288,7 @@ else {
     }
   } 
 
-  let searchNews = reportArray[0];
+  searchNews = reportArray[0];
   console.log(searchNews);
   const NEWS_API_URL = "https://newsapi.org/v2/everything";
   const newsKey = "c61555335ae647768b810bcdeef93736";
@@ -301,22 +301,30 @@ else {
 
     let { data } = response;
 
-    let newsArticles = data.totalResults;
+
+    let allTheArticles  = data.articles;
+    console.log("all articles" + allTheArticles);
+    let numArticles = data.totalResults;
+    if (numArticles) {
+      let i;
+      for (i = 0; i<numArticles && i<10; i++) {
+        let tempObj = {}      // define intermediate object within loop
+        tempObj = data.articles[i];
+        articleArray.push(tempObj);
+        console.log("array iterating");
+      }
+    }
+    console.log("num results " + numArticles);
+    console.log(articleArray.length);
     let newsSource = data.articles[0].source.name;
     let newsTitle = data.articles[0].title;
     let newsText = data.articles[0].description;
-    console.log("queried news api");
-    console.log("number of articles: " + newsArticles);
-    console.log("from " + newsSource);
-    console.log("Title: " + newsTitle);
-    console.log(newsText);
+    console.log("queried news api with" + searchNews);
 
     res.render('checkhash', {
       searchTopic: searchNews,
-      numArticles: newsArticles,
-      newsSource: newsSource,
-      newsTitle: newsTitle,
-      newsText: newsText,
+      allArticles: articleArray, 
+      numArticles: numArticles,
     });
     
   }

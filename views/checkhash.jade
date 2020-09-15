@@ -1,12 +1,19 @@
 extends layout
 
 block content
-  h1= "You searched for " + searchTopic
-  p The topic you searched was
-  p=searchTopic
-  p="We found " + newsArticles
-  p This report is from
-  p=newsSource
-  p=newsTitle
-  p=newsText
-
+  div.info
+    p You searched for: 
+    p #{searchTopic}
+    p Here are some News Articles
+    ul
+    each val in allArticles
+      p This article is from the fine folk at
+      p #{val.source.name}
+      p The title of the article is
+      p #{val.title}
+      p Here's the article
+      p #{val.description}
+        
+  div.homebutton
+    a(href = '/') 
+      button Return Home

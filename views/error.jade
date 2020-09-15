@@ -1,6 +1,9 @@
 extends layout
 
 block content
-  h1= "Something went wrong"
+  h1= "An Error has occured"
   p= message
   p= moretext
+  div.homebutton
+    a(href = '/') 
+      button Return Home

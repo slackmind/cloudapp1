@@ -7,7 +7,10 @@ block content
   p=searchedFor
   ul
     each val in sometext
-        p The Key Phrases
+        p Here are some key phrases
         p #{val.keyPhrases}
           each phrase in val.keyPhrases
             span=phrase
+  div.homebutton
+    a(href = '/') 
+      button Return Home
