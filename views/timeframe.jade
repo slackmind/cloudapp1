@@ -1,9 +1,16 @@
 extends layout
 
 block content
-  h1="you searched for vulenerabilities after"
-  p=startMonth + startYear
+  p You searched for Vulnerabilities after
+  p #{startMonth}
+  p #{startYear}
   ul
+    p The CVE-IDs involved are:
+    each id in cveIDs
+        p #{id}
+    p Here are some key phrases
     each val in sometext
-        p The Key Phrases
         p #{val.keyPhrases}
+  div.homebutton
+    a(href = '/') 
+      button Return Home
