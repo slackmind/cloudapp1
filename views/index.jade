@@ -24,9 +24,9 @@ block content
   h2= "Here you can check a file's fingerprint and find out information"
   
   form(action="/checkhash", name="hash", method="get")
-    div.input
+    div.textarea
       span.label Hash
-      h2= "Please enter the hash of a file you wish to discover news about"
-      input(type="text", name="inputHash")
+      p= "Please enter the hash of a file you wish to discover news about"
+      input(type="text", name="inputHash", maxlength="500", rows="200", cols="200")
       button(type='search') SearchHash
 
