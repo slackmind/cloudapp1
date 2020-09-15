@@ -14,12 +14,15 @@ router.get('/searchterm', async function (req, res) {
   const schema = Joi.object({     // define validation schema
     keyword: Joi.string().alphanum().min(3).max(20).required(),
     resultNum: Joi.number().min(1).max(10).positive().integer().required(),
+    startMonth: Joi.number().min(1).max(12).positive().integer().required(),
+    startYear: Joi.number().min(1995).max(2020).positive().integer().required(),
   });
 
   let holdInput = schema.validate(req.query); // validate the request data using schema
   
   if (holdInput.error) {      // check if anything went wrong
     let errorMessage = holdInput.error.details[0].message;
+    console.log("errorrrr");
 
     res.render('error', {     // error page
       message: errorMessage,
@@ -30,16 +33,22 @@ router.get('/searchterm', async function (req, res) {
 
     let keyword = holdInput.value.keyword;        //  assign using the sanitized input
     let resultNum = holdInput.value.resultNum;
-    
+    let startMonth = ('0' + holdInput.value.startMonth).slice(-2); // add leading 0 if < 10
+    let startYear = holdInput.value.startYear;
+    console.log(startYear);
+    console.log(startMonth);
+
     const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
     let keywordSearch = `?keyword=${keyword}`;
     let numResults = `&resultsPerPage=${resultNum}`;
+    let timeFrame = `?modStartDate=${startYear}-${startMonth}-01T00:00:00:000 UTC-05:00`;
 
     try {
-      const response = await axios.get(NIST_URL + keywordSearch + numResults)
-
+      const response = await axios.get(NIST_URL + timeFrame + keywordSearch + numResults)
+      console.log("query url with all the things");
       let { data } = response;
       let infoArraySize = data.result.CVE_Items.length;
+      console.log(infoArraySize);
   
       if (infoArraySize > 0) {    // check we got anything back
         let i;
@@ -126,142 +135,6 @@ router.get('/searchterm', async function (req, res) {
    }
 });
 
-router.get('/timeframe', async function (req, res) {
-
-  let infoArray = [];
-
-  // define validation schema
-  const schema = Joi.object({
-  startMonth: Joi.number().min(1).max(12).positive().integer().required(),
-  startYear: Joi.number().min(1995).max(2020).positive().integer().required(),
-  endMonth: Joi.number().min(1).max(12).positive().integer(),
-  endYear: Joi.number().min(Joi.ref('startYear')).max(2020).positive().integer(),
-  resultNum: Joi.number().min(1).max(10).positive().integer(),
-  });
-
-// validate the request data against the schema
-let holdInput = schema.validate(req.query);
-
-// check if anything went wrong
-if (holdInput.error) {
-  let errorMessage = holdInput.error.details[0].message;
-  console.log("error is " + errorMessage);
-  // error page
-  res.render('error', {
-    message: errorMessage,
-  });
-} 
-
-else {
-  console.log("ok without error");
-  // assign values
-  let startMonth = ('0' + holdInput.value.startMonth).slice(-2); // add leading 0 if < 10
-  let startYear = holdInput.value.startYear;
-  let endMonth = ('0' + holdInput.value.endMonth).slice(-2);
-  let endYear = holdInput.value.endYear;
-  let resultNum = holdInput.value.resultNum;
-
-  
-  /* NIST CVE API URL  */
-  const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
-  let startTime = `?modStartDate=${startYear}-${startMonth}-01T00:00:00:000%20UTC-05:00`;
-  let endTime = `?modStartDate=${endYear}-${endMonth}-01T00:00:00:000%20UTC-05:00`;
-  let numResults = `&resultsPerPage=${resultNum}`;
-  let testt = "https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate=2019-01-01T00:00:00:000%20UTC-05:00";
-  console.log("maybe not");
-  
-  
-  try {
-    const response = await axios.get(testt)
-
-    let { data } = response
-    let infoArraySize = data.result.CVE_Items.length;
-
-    if (infoArraySize > 0) {
-      let i;
-      for (i = 0; i < infoArraySize; i++) {
-        let tempObj = {}      // define intermediate object within loop
-        tempObj = data.result.CVE_Items[i].cve.description.description_data[0].value;
-        infoArray.push(tempObj);
-        console.log("iterating");
-      }
-    }
-  }  catch(err) {
-    if (err.response) {
-      let errorMessage = "5__ / 4__ error";
-      res.render('error', {     // error page
-        message: errorMessage,
-        moretext: err
-      });
-    } else if (err.request) {
-      let errorMessage = "Something went wrong with response or request";
-      res.render('error', {
-        message: errorMessage,
-        moretext: err
-      });
-    } else {
-    let errorMessage = "Axios error";
-      res.render('error', {
-        message: errorMessage,
-        moretext: err
-      });
-    }
-  }
-
-  // Azure Language Processing API
-  const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
-  const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
-
-  //  create new client with my endpoint and API key
-  const textAnalyticsClient = new TextAnalyticsClient(
-                                azureEndPoint,  
-                                new AzureKeyCredential(azureKey));
-  
-  async function keyPhraseExtraction(client){
-      
-      const keyPhraseResult = await client.extractKeyPhrases(infoArray);
-      
-      //keyPhraseResult.forEach(document => {
-          //console.log(`ID: ${document.id}`);
-          //console.log(`\tDocument Key Phrases: ${document.keyPhrases}`);
-      //});
-      console.log(keyword);
-      console.log(keyPhraseResult[0].keyPhrases);
-
-      res.render('timeframe', {
-        startMonth: startMonth,
-        startYear: startYear,
-        sometext: keyPhraseResult,
-       
-      });
-  }
-      
-      try {
-        await keyPhraseExtraction(textAnalyticsClient);
-      } catch(err) {
-        if (err.response) {
-          let errorMessage = "5__ / 4__ error";
-          res.render('error', {
-            message: errorMessage,
-            moretext: err
-          });
-        } else if (err.request) {
-          let errorMessage = "Something went wrong with response or request";
-          res.render('error', {
-            message: errorMessage,
-            moretext: err
-          });
-        }
-        let errorMessage = "Axios error";
-          res.render('error', {
-            message: errorMessage,
-            moretext: err
-          });
-      }
- }
-  
-  
-});
 
 /* GET home page. */
 router.get('/', function (req, res) {
@@ -287,20 +160,20 @@ router.get('/checkhash', async function (req, res) {
 
   console.log(req.query);
 
-  // define validation schema
-  const schema = Joi.object({
+  
+  const schema = Joi.object({       // validation (md5,sha1, sha256 are 32-64 hex characters)
   inputHash: Joi.string().min(32).max(64).hex().required()
   });
 
-  // validate the request data against the schema
-  let holdInput = schema.validate(req.query);
+  
+  let holdInput = schema.validate(req.query);   // validate the request data against the schema
   console.log("the input is  " + JSON.stringify(holdInput));
-  // check if anything went wrong
-  if (holdInput.error) {
+  
+  if (holdInput.error) {    // check if anything went wrong
     let errorMessage = holdInput.error.details[0].message;
     console.log("error is " + errorMessage);
-    // error page
-    res.render('error', {
+    
+    res.render('error', {   // error page
       message: errorMessage,
     });
   } 
@@ -331,6 +204,7 @@ else {
 
     let { data } = response;
 
+    console.log("logging data.scans" + data.scans);
     if ( data.scans ) {
 
       // best report summaries with regex to clean
@@ -348,6 +222,7 @@ else {
     
   }  catch(err) {
     if (err.response) {
+      console.log("error1");
       let errorMessage = "5__ / 4__ error";
       res.render('error', {     // error page
         message: errorMessage,
@@ -360,6 +235,7 @@ else {
         moretext: err
       });
     } else {
+      console.log("error3");
     let errorMessage = "Axios error";
       res.render('error', {
         message: errorMessage,
@@ -368,7 +244,6 @@ else {
     }
   }
 
-  // news api key
   const NEWS_API_URL = "https://newsapi.org/v2/everything";
   const newsKey = "c61555335ae647768b810bcdeef93736";
   let newsQuery = `?q=${symantecReport}&apiKey=${newsKey}`
@@ -423,7 +298,6 @@ else {
       });
     }
   }
-
   
 }
   
