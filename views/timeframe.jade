@@ -1,9 +1,10 @@
 extends layout
 
 block content
-  p You searched for Vulnerabilities after
-  p #{startMonth}
-  p #{startYear}
+  p You searched for Vulnerabilities
+  p #{beforeOrAfter}
+  p #{month}
+  p #{year}
   ul
     p The CVE-IDs involved are:
     each id in cveIDs

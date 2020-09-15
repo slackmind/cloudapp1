@@ -4,14 +4,14 @@ block content
   div.info
     h1 The hash you searched for is linked to: 
     h1 #{searchTopic}
-    p Here are some News Articles
+    p Here are some News Articles:
     ul
     each val in allArticles
-      p This article is from the fine folk at
+      p This article is from the fine folk at:
       p #{val.source.name}
-      p The title of the article is
+      p The title of the article is:
       p #{val.title}
-      p Here's the article
+      p Here's the article:
       p #{val.description}
         
   div.homebutton

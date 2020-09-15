@@ -1,13 +1,13 @@
 extends layout
 
 block content
-  p Here's some info regarding the search for
+  p Here's some info regarding the search for:
   p=searchedFor
   ul
     p The CVE-IDs involved are:
     each id in cveIDs
         p #{id}
-    p Here are some key phrases
+    p Here are some key phrases:
     each val in sometext
         p #{val.keyPhrases}
   div.homebutton
