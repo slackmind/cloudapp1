@@ -80,7 +80,8 @@ router.get('/searchterm', async function (req, res) {
 
     //  create new client with my endpoint and API key
     const textAnalyticsClient = new TextAnalyticsClient(
-      azureEndPoint,  new AzureKeyCredential(azureKey));
+                                azureEndPoint,    
+                                new AzureKeyCredential(azureKey));
     
     /* from https://docs.microsoft.com/en-us/azure/cognitive-services
     /text-analytics/quickstarts/text-analytics-sdk?pivots=programming-
@@ -217,7 +218,8 @@ else {
 
   //  create new client with my endpoint and API key
   const textAnalyticsClient = new TextAnalyticsClient(
-    azureEndPoint,  new AzureKeyCredential(azureKey));
+                                azureEndPoint,  
+                                new AzureKeyCredential(azureKey));
   
   /* from https://docs.microsoft.com/en-us/azure/cognitive-services
   /text-analytics/quickstarts/text-analytics-sdk?pivots=programming-
@@ -232,6 +234,7 @@ else {
       });
       console.log(keyword);
       console.log(keyPhraseResult[0].keyPhrases);
+
       res.render('timeframe', {
         startMonth: startMonth,
         startYear: startYear,
@@ -268,72 +271,6 @@ else {
   
   
   
-  
-  
-  /*
-  
-  axios
-    .get(NIST_URL + startTime + numResults)
-
-    .then((response) => {
-      console.log('got here')
-
-      // save the response to an object
-      let {
-        data
-      } = response;
-      console.log('attempt to display data');
-
-      let infoArray = [];
-        let infoArraySize = data.result.CVE_Items.length;
-    
-        if (infoArraySize > 0) {
-          let i;
-          for (i = 0; i < infoArraySize; i++) {
-            let tempObj = {}
-            tempObj = data.result.CVE_Items[i].cve.description.description_data[0].value;
-            infoArray.push(tempObj);
-            console.log("iterating");
-            //console.log(infoArray[i]);
-          }
-        }
-
-
-      res.render('timeframe', {
-        title: 'Update',
-        sometext: infoArray,
-        title2: 'Check a file',
-        //info: allDescriptions
-      });
-
-    }).catch(err => {
-      if (err.response) {
-        let errorMessage = "5__ / 4__ error";
-
-        res.render('error', {
-          message: errorMessage,
-          moretext: err
-        });
-        
-      } else if (err.request) {
-        let errorMessage = "Something went wrong with response or request";
-
-        res.render('error', {
-          message: errorMessage,
-          moretext: err
-        });
-      } else {
-      let errorMessage = "Axios error";
-
-        res.render('error', {
-          message: errorMessage,
-          moretext: err
-        });
-      }
-    })
-
-    // end of error */
-  
 });
 
 /* GET home page. */
@@ -349,7 +286,14 @@ router.get('/', function (req, res) {
   });
 });
 
-router.get('/checkhash', function (req, res) {
+router.get('/checkhash', async function (req, res) {
+
+  // variables to store responses and use to query News
+  let symantecReport;
+  let sophosReport;
+  let kasperskyReport;
+  let alibabaReport;
+  let trendmicroReport;
 
   console.log(req.query);
 
@@ -358,19 +302,22 @@ router.get('/checkhash', function (req, res) {
   inputHash: Joi.string().min(32).max(64).hex().required()
   });
 
-// validate the request data against the schema
-let holdInput = schema.validate(req.query);
-console.log("the input is  " + JSON.stringify(holdInput));
-// check if anything went wrong
-if (holdInput.error) {
-  let errorMessage = holdInput.error.details[0].message;
-  console.log("error is " + errorMessage);
-  // error page
-  res.render('error', {
-    message: errorMessage,
-  });
-} else {
-  let md5hash = holdInput.value.inputHash;
+  // validate the request data against the schema
+  let holdInput = schema.validate(req.query);
+  console.log("the input is  " + JSON.stringify(holdInput));
+  // check if anything went wrong
+  if (holdInput.error) {
+    let errorMessage = holdInput.error.details[0].message;
+    console.log("error is " + errorMessage);
+    // error page
+    res.render('error', {
+      message: errorMessage,
+    });
+  } 
+
+else {
+
+  let fileHash = holdInput.value.inputHash;
 
   // from https://virusshare.com/hashfiles/VirusShare_00000.md5 and 
   // from https://www.fireeye.com/blog/threat-research/2017/05/wannacry-malware-profile.html
@@ -381,11 +328,99 @@ if (holdInput.error) {
 
   /* VIRUS TOTAL API URL  */
   //const VIRUS_TOTAL_URL = process.env.VT_KEY
+  const loadVTKey = process.env.virusTotalKey;
   const VIRUS_TOTAL_URL = "https://www.virustotal.com/vtapi/v2/file/report";
   const VIRUS_TOTAL_KEY = "ed88a13aa2d037961fe2150650a49f970b766f3151e684ecbbfb22f04b3d50ca";
   const vtKey = `?apikey=${VIRUS_TOTAL_KEY}`;
-  let vtDomain = `&resource=${md5hash}`;
+  let vtDomain = `&resource=${fileHash}`;
 
+
+  
+  try {
+    const response = await axios.get(VIRUS_TOTAL_URL + vtKey + vtDomain)
+
+    let { data } = response;
+
+    // best report summaries with regex to clean
+    symantecReport = data.scans.Symantec.result
+    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+    sophosReport = data.scans.Sophos.result
+    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+    kasperskyReport = data.scans.Kaspersky.result
+    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+    alibabaReport = data.scans.Alibaba.result
+    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+    trendmicroReport = data.scans.TrendMicro.result
+    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+
+    res.render('checkhash', {
+      hashSearched: fileHash,
+      hashReport1: symantecReport,
+      hashReport2: sophosReport,
+      hashReport3: kasperskyReport,
+      hashReport4: alibabaReport,
+      hashReport5: trendmicroReport,
+      /*newsReport: okNowNews */
+    });
+  }  catch(err) {
+    if (err.response) {
+      let errorMessage = "5__ / 4__ error";
+      res.render('error', {     // error page
+        message: errorMessage,
+        moretext: err
+      });
+    } else if (err.request) {
+      let errorMessage = "Something went wrong with response or request";
+      res.render('error', {
+        message: errorMessage,
+        moretext: err
+      });
+    } else {
+    let errorMessage = "Axios error";
+      res.render('error', {
+        message: errorMessage,
+        moretext: err
+      });
+    }
+  }
+
+  // news api key
+  let dummySearch = "apple";
+  const NEWS_API_URL = "https://newsapi.org/v2/everything";
+  const newsKey = "c61555335ae647768b810bcdeef93736";
+  let newsQuery = `?q=${symantecReport}&apiKey=${newsKey}`
+  console.log(NEWS_API_URL + newsQuery);
+
+  try {
+    const response = await axios.get(NEWS_API_URL + newsQuery)
+
+    let { data } = response;
+    console.log("queried news api");
+    console.log(JSON.stringify(data));
+  }
+  catch(err) {
+    if (err.response) {
+      let errorMessage = "5__ / 4__ error";
+      res.render('error', {     // error page
+        message: errorMessage,
+        moretext: err
+      });
+    } else if (err.request) {
+      let errorMessage = "Something went wrong with response or request";
+      res.render('error', {
+        message: errorMessage,
+        moretext: err
+      });
+    } else {
+    let errorMessage = "Axios error";
+      res.render('error', {
+        message: errorMessage,
+        moretext: err
+      });
+    }
+  }
+
+/*
   axios
     .get(VIRUS_TOTAL_URL + vtKey + vtDomain)
     .then((response) => {
@@ -435,34 +470,11 @@ if (holdInput.error) {
 
 
 
-      res.render('checkhash', {
-        hashSearched: md5hash,
-        hashReport1: symantecReport,
-        hashReport2: sophosReport,
-        hashReport3: kasperskyReport,
-        hashReport4: alibabaReport,
-        hashReport5: trendmicroReport,
-        /*newsReport: okNowNews */
-      });
+      
+      */
+  
 
-    })
-
-    // error handling
-    .catch(err => {
-      if (err.response) {
-        //console.log("5xx/4xx error");
-        //console.log(err);
-        res.render('error', {
-          message: "an error occured"
-        });
-      } else if (err.request) {
-        //console.log("something went wrong with response or request");
-        //console.log(err);
-      } else {
-      //console.log(err);
-      console.log("something went wrong, axios error");
-    }
-  })
+  
 }
   
 });

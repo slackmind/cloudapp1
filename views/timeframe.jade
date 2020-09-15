@@ -1,12 +1,9 @@
 extends layout
 
 block content
-  h1="Here is the full description"
-  p Finger crossed
+  h1="you searched for vulenerabilities after"
+  p=startMonth + startYear
   ul
     each val in sometext
-        p Hello worldd
-        p #{JSON.stringify(val)}
-            if val.list
-                each item in val
-                    p #{item}
+        p The Key Phrases
+        p #{val.keyPhrases}
