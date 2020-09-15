@@ -5,9 +5,10 @@
   "scripts": {
     "start": "nodemon ./bin/www",
     "test": "node ./bin/www"
-    
   },
   "dependencies": {
+    "@azure/ai-text-analytics": "^5.0.0",
+    "@google-cloud/language": "^4.1.0",
     "@hapi/joi": "^17.1.1",
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",

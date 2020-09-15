@@ -2,12 +2,10 @@ extends layout
 
 
 block content
-  h1=searchedFor
-  p Here's some info
+
+  p Here's some info regarding the search for
+  p=searchedFor
   ul
     each val in sometext
-        p Hello worldd
-        p #{JSON.stringify(val)}
-            if val.list
-                each item in val
-                    p #{item}
+        p The Key Phrases
+        p #{val.keyPhrases}
