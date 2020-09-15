@@ -6,11 +6,12 @@ block content
   p Here's some info regarding the search for
   p=searchedFor
   ul
+    p The CVE-IDs involved are:
+    each id in cveIDs
+        p #{id}
+    p Here are some key phrases
     each val in sometext
-        p Here are some key phrases
         p #{val.keyPhrases}
-          each phrase in val.keyPhrases
-            span=phrase
   div.homebutton
     a(href = '/') 
       button Return Home

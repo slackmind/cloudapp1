@@ -9,6 +9,8 @@ const { PreconditionFailed } = require('http-errors');
 router.get('/searchterm', async function (req, res) {
 
   let infoArray = [];             // store the first response from the API
+  let idCVEArray = [];
+  //let dateArray = [];
   
   const schema = Joi.object({     // define validation schema
     keyword: Joi.string().alphanum().min(3).max(20).required(),
@@ -45,10 +47,13 @@ router.get('/searchterm', async function (req, res) {
       if (infoArraySize > 0) {    // check we got anything back
         let i;
         for (i = 0; i < infoArraySize; i++) {
-          let tempObj = {}      // define intermediate object within loop
-          tempObj = data.result.CVE_Items[i].cve.description.description_data[0].value;
-          infoArray.push(tempObj);
-          console.log("iterating");
+          let tempObj1 = {}      // define intermediate objects within loop
+          let tempObj2 = {}
+          let tempObj3 = {}
+          tempObj1 = data.result.CVE_Items[i].cve.description.description_data[0].value;
+          infoArray.push(tempObj1);
+          tempObj2 = data.result.CVE_Items[i].cve.CVE_data_meta.ID;
+          idCVEArray.push(tempObj2);
         }
       }
     }  catch(err) {
@@ -103,6 +108,7 @@ router.get('/searchterm', async function (req, res) {
         console.log(keyword);
         console.log(keyPhraseResult[0].keyPhrases);
         res.render('searchterm', {
+          cveIDs: idCVEArray,
           searchedFor: keyword,
           sometext: keyPhraseResult,
          
