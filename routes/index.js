@@ -3,8 +3,6 @@ var express = require('express');
 var router = express.Router();
 const axios = require('axios').default;
 const Joi = require('joi'); // input validation
-// Imports the Google Cloud client library
-const language = require('@google-cloud/language');
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
 
 router.get('/searchterm', async function (req, res) {
@@ -155,8 +153,10 @@ router.get('/checkhash', async function (req, res) {
   let symantecReport;
   let sophosReport;
   let kasperskyReport;
-  let alibabaReport;
+  let microsoftReport;
   let trendmicroReport;
+  let yandexReport;
+  let cylanceReport;
 
   console.log(req.query);
 
@@ -204,20 +204,34 @@ else {
 
     let { data } = response;
 
-    console.log("logging data.scans" + data.scans);
+    console.log("logging data.scans" + JSON.stringify(data.scans));
     if ( data.scans ) {
 
       // best report summaries with regex to clean
+      if (data.scans.Symantec.detected === "true") {
       symantecReport = data.scans.Symantec.result
       .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      }
+      if (data.scans.Sophos.detected === "true") {
       sophosReport = data.scans.Sophos.result
       .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      }
+      if (data.scans.Kaspersky.detected === "true") {
       kasperskyReport = data.scans.Kaspersky.result
       .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      alibabaReport = data.scans.Alibaba.result
+      }
+      if (data.scans.Microsoft.detected === "true") {
+      microsoftReport = data.scans.Microsoft.result
       .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-      trendmicroReport = data.scans.TrendMicro.result
+      }
+      if (data.scans.Yandex.detected === "true") {
+      yandexReport = data.scans.YandexMicro.result
       .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      }
+      if (data.scans.Cylance.detected === "true") {
+      cylanceReport = data.scans.Cylance.result
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+      }
   }
     
   }  catch(err) {
@@ -272,7 +286,7 @@ else {
       hashReport1: symantecReport,
       hashReport2: sophosReport,
       hashReport3: kasperskyReport,
-      hashReport4: alibabaReport,
+      hashReport4: microsoftReport,
       hashReport5: trendmicroReport,
       newsReport: newsText
     });
