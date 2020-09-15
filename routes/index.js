@@ -353,15 +353,7 @@ else {
     trendmicroReport = data.scans.TrendMicro.result
     .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
 
-    res.render('checkhash', {
-      hashSearched: fileHash,
-      hashReport1: symantecReport,
-      hashReport2: sophosReport,
-      hashReport3: kasperskyReport,
-      hashReport4: alibabaReport,
-      hashReport5: trendmicroReport,
-      /*newsReport: okNowNews */
-    });
+    
   }  catch(err) {
     if (err.response) {
       let errorMessage = "5__ / 4__ error";
@@ -395,8 +387,25 @@ else {
     const response = await axios.get(NEWS_API_URL + newsQuery)
 
     let { data } = response;
+
+    let newsArticles = data.totalResults;
+    let newsSource = data.articles[0].source.name;
+    let newsTitle = data.articles[0].title;
+    let newsText = data.articles[0].description;
     console.log("queried news api");
-    console.log(JSON.stringify(data));
+    console.log("number of articles: " + newsArticles);
+    console.log("from " + newsSource);
+    console.log("Title: " + newsTitle);
+    console.log(newsText);
+    res.render('checkhash', {
+      hashSearched: fileHash,
+      hashReport1: symantecReport,
+      hashReport2: sophosReport,
+      hashReport3: kasperskyReport,
+      hashReport4: alibabaReport,
+      hashReport5: trendmicroReport,
+      newsReport: newsText
+    });
   }
   catch(err) {
     if (err.response) {
