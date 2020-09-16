@@ -104,7 +104,6 @@ block content
   p Here you can check a file's fingerprint and find out information
   form(action="/checkhash", name="hash", method="get")
     div.textarea
-      span.label Hash
       p= "Please enter the hash of a file you wish to discover news about"
       input(type="text", name="inputHash", class="inputHash", maxlength="500", rows="200", cols="200")
       button(type='search') SearchHash

@@ -7,10 +7,8 @@ block content
     p Here are some News Articles:
     ul
     each val in allArticles
-      p This article is from the fine folk at:
-      p #{val.source.name}
-      p The title of the article is:
-      p #{val.title}
+      p This article is from the fine folk at: #{val.source.name}
+      p The title of the article is: #{val.title}
       p Here's the article:
       p #{val.description}
         
