@@ -49,10 +49,8 @@ router.get('/searchterm', async function (req, res) {
     let numResults = `&resultsPerPage=${resultNum}`;
     try {
       const response = await axios.get(NIST_URL + keywordSearch + numResults)
-      console.log("query url with all the things");
       let { data } = response;
       let infoArraySize = data.result.CVE_Items.length;
-      console.log(infoArraySize);
   
       if (infoArraySize > 0) {    // check we got anything back
         let i;
@@ -94,8 +92,8 @@ router.get('/searchterm', async function (req, res) {
 
     // Azure Language Processing API
     const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
-    const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
-    //const azureKey = process.env.MSFKEY
+    //const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
+    const azureKey = process.env.MSFKEY
 
     //  create new client with my endpoint and API key
     const textAnalyticsClient = new TextAnalyticsClient(
@@ -148,7 +146,6 @@ router.get('/searchterm', async function (req, res) {
 
 router.get('/checkhash', async function (req, res) {
 
-  console.log(req.query);
   // variables to store responses and use to query News
   let symantecReport;
   let sophosReport;
@@ -165,9 +162,7 @@ router.get('/checkhash', async function (req, res) {
   inputHash: Joi.string().min(32).max(64).hex().required()
   });
 
-  
   let holdInput = schema.validate(req.query);   // validate the request data against the schema
-  console.log("the input is  " + JSON.stringify(holdInput));
   
   if (holdInput.error) {    // check if anything went wrong
     let errorMessage = holdInput.error.details[0].message;
@@ -179,19 +174,12 @@ router.get('/checkhash', async function (req, res) {
     return; 
   } 
   else {
-
   let fileHash = holdInput.value.inputHash;
 
-  // from https://virusshare.com/hashfiles/VirusShare_00000.md5 and 
-  // from https://www.fireeye.com/blog/threat-research/2017/05/wannacry-malware-profile.html
-  // other ideas https://www.cisecurity.org/blog/top-10-malware-january-2019/
-  let testHash1 = "10c027b28bfb9c569268746dd805fa7f";
-  let testHash2 = "ffb456a28adf28a05af5746f996a96dc";
-  let wannaCry1 = "db349b97c37d22f5ea1d1841e3c89eb4";
+
 
   const VIRUS_TOTAL_URL = "https://www.virustotal.com/vtapi/v2/file/report";
-  const VIRUS_TOTAL_KEY = "ed88a13aa2d037961fe2150650a49f970b766f3151e684ecbbfb22f04b3d50ca";
-  // const VIRUS_TOTAL_KEY = process.env.VTKEY
+  const VIRUS_TOTAL_KEY = process.env.VTKEY
   const vtKey = `?apikey=${VIRUS_TOTAL_KEY}`;
   let vtDomain = `&resource=${fileHash}`;
   
@@ -199,18 +187,12 @@ router.get('/checkhash', async function (req, res) {
     const response = await axios.get(VIRUS_TOTAL_URL + vtKey + vtDomain)
 
     let { data } = response;
-    console.log("logging data scans " + data.scans);
-    if (data.scans) {
+    if (data.scans) {   // see if we got any reports
 
-      console.log("from symantec: ", data.scans.Symantec);
       // add best report summaries to array, with regex to clean 
-      console.log("check data scans symantec " + data.scans.Symantec.detected);
       if (data.scans.Symantec.detected === true) {
-        
-        console.log("check result " + data.scans.Symantec.result);
         symantecReport = data.scans.Symantec.result
         .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-        console.log(symantecReport);
         reportArray.push(symantecReport);
       }
       if (data.scans.Sophos.detected === true) {
@@ -226,7 +208,6 @@ router.get('/checkhash', async function (req, res) {
       if (data.scans.Microsoft.detected.length === true) {
         microsoftReport = data.scans.Microsoft.result
         .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-        console.log("microsoft" + microsoftReport);
         reportArray.push(microsoftReport);
       }
       if (data.scans.Yandex.detected.length === true) {
@@ -243,14 +224,12 @@ router.get('/checkhash', async function (req, res) {
         trendMicroReport = data.scans.TrendMicro.result
         .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         reportArray.push(trendMicroReport);
-        console.log("trend micro" + trendMicroReport);
       }
   }
     
   }  
   catch(err) {
     if (err.response) {
-      console.log("error1");
       let errorMessage = "5__ / 4__ error";
       res.render('error', {     // error page
         message: errorMessage,
@@ -267,7 +246,6 @@ router.get('/checkhash', async function (req, res) {
       return;
     } 
     else {
-      console.log("error3");
     let errorMessage = "Axios error";
       res.render('error', {
         message: errorMessage,
@@ -279,8 +257,7 @@ router.get('/checkhash', async function (req, res) {
 
   searchNews = reportArray[0];
   const NEWS_API_URL = "https://newsapi.org/v2/everything";
-  const newsKey = "c61555335ae647768b810bcdeef93736";
-  //const newsKey = process.env.NEWSKEY;
+  const newsKey = process.env.NEWSKEY;
   let newsQuery = `?q=${searchNews}&apiKey=${newsKey}`
 
   try {
@@ -288,9 +265,7 @@ router.get('/checkhash', async function (req, res) {
 
     let { data } = response;
 
-
     let allTheArticles  = data.articles;
-    console.log("all articles" + allTheArticles);
     let numArticles = data.totalResults;
     if (numArticles) {
       let i;
@@ -298,16 +273,8 @@ router.get('/checkhash', async function (req, res) {
         let tempObj = {}      // define intermediate object within loop
         tempObj = data.articles[i];
         articleArray.push(tempObj);
-        console.log("array iterating");
       }
     }
-    console.log("num results " + numArticles);
-    console.log(articleArray.length);
-    let newsSource = data.articles[0].source.name;
-    let newsTitle = data.articles[0].title;
-    let newsText = data.articles[0].description;
-    console.log("queried news api with" + searchNews);
-
     res.render('checkhash', {
       searchTopic: searchNews,
       allArticles: articleArray, 
@@ -342,12 +309,6 @@ router.get('/checkhash', async function (req, res) {
   }
   
   }
-});
-
-router.post('/', function (req, res) {
-  console.log(req.body.selectDays);
-  console.log(req.body.description);
-  res.send('Post page');
 });
 
 module.exports = router;

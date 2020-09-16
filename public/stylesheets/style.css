@@ -9,7 +9,7 @@ a {
 }
 
 button {
-  background: rgb(39, 221, 175);
+  background: rgb(39, 57, 221);
   border: 2px, rgb(97, 224, 103);
   padding: 20;
   text-align: center;
@@ -21,15 +21,6 @@ button {
   border-radius: 6px;
 }
 
-button2 {
-  background: rgb(39, 221, 175);
-  border: 2px, rgb(97, 224, 103);
-  padding: 20;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 16px;
-  margin-left: 20px;
-  border-radius: 6px;
+.inputHash {
+  width: 500px;
 }

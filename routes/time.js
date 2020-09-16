@@ -210,8 +210,8 @@ router.get('/timeafter', async function (req, res) {
   
     // Azure Language Processing API
     const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
-    const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
-  
+    //const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
+    const azureKey = process.env.MSFKEY;
     const textAnalyticsClient = new TextAnalyticsClient(  //  create new client with my endpoint and API key
                                   azureEndPoint,  
                                   new AzureKeyCredential(azureKey));
