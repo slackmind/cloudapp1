@@ -1,7 +1,9 @@
-FROM node:12
+FROM node:12 
 
+# our working directory
 WORKDIR /app
 
+# copy all to working directory
 COPY . /app
 
 # install 
