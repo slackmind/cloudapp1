@@ -6,7 +6,6 @@ const Joi = require('joi'); // input validation
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
 const { PreconditionFailed } = require('http-errors');
 
-
 router.get('/timeafter', async function (req, res) {
     let infoArray = [];
     let idCVEArray = [];
@@ -19,7 +18,6 @@ router.get('/timeafter', async function (req, res) {
   
   
   let holdInput = schema.validate(req.query);   // validate the request data against the schema
-  
   
   if (holdInput.error) {    // check if anything went wrong
     let errorMessage = holdInput.error.details[0].message;
@@ -39,7 +37,6 @@ router.get('/timeafter', async function (req, res) {
     const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
     let startTime = `?modStartDate=${startYear}-${startMonth}-01T00:00:00:000%20UTC-05:00`;
     let numResults = `&resultsPerPage=${resultNum}`;
-    //let testt = "https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate=2019-01-01T00:00:00:000%20UTC-05:00";
     
     try {
       const response = await axios.get(NIST_URL + startTime + numResults)
@@ -84,7 +81,7 @@ router.get('/timeafter', async function (req, res) {
   
     // Azure Language Processing API
     const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
-    const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
+    const azureKey = process.env.MSFKEY;
   
     const textAnalyticsClient = new TextAnalyticsClient(  //  create new client with my endpoint and API key
                                   azureEndPoint,  
@@ -165,7 +162,6 @@ router.get('/timeafter', async function (req, res) {
     const NIST_URL = "https://services.nvd.nist.gov/rest/json/cves/1.0";
     let endTime = `?modEndDate=${endYear}-${endMonth}-01T00:00:00:000%20UTC-05:00`;
     let numResults = `&resultsPerPage=${resultNum}`;
-    //let testt = "https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate=2019-01-01T00:00:00:000%20UTC-05:00";
     
     try {
       const response = await axios.get(NIST_URL + endTime + numResults)
@@ -210,7 +206,6 @@ router.get('/timeafter', async function (req, res) {
   
     // Azure Language Processing API
     const azureEndPoint = "https://textcreate.cognitiveservices.azure.com/";
-    //const azureKey = "c8c62ec3e50a43faaf1df63ffbad697c";
     const azureKey = process.env.MSFKEY;
     const textAnalyticsClient = new TextAnalyticsClient(  //  create new client with my endpoint and API key
                                   azureEndPoint,  
