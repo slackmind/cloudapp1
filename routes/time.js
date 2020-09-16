@@ -136,8 +136,8 @@ router.get('/timebefore', async function (req, res) {
   let idCVEArray = [];
 
   const schema = Joi.object({ // define validation schema
-    endMonth: Joi.number().min(1).max(12).positive().integer(),
-    endYear: Joi.number().min(2006).max(2020).positive().integer(),
+    endMonth: Joi.number().min(1).max(12).positive().integer().required(),
+    endYear: Joi.number().min(2006).max(2020).positive().integer().required(),
     resultNum: Joi.number().min(1).max(10).positive().integer().required(),
   });
 
