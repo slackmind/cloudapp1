@@ -143,6 +143,7 @@ router.get('/searchterm', async function (req, res) {
 router.get('/checkhash', async function (req, res) {
 
   // variables to store responses and use to query News
+  // the most reputable companies (hopefully)
   let symantecReport;
   let sophosReport;
   let kasperskyReport;
